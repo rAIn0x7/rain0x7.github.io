@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 合婚 · 测你俩的配对度 — qizh.space</title>
+<meta name="description" content="输入两个人的名字,AI 测你俩的缘分配对度:总分 + 人设标签 + 性格契合/沟通雷区/旺不旺。趣味测试,分享解锁完整版。">
+<link rel="canonical" href="https://qizh.space/ce/hehun/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230a0908'/%3E%3Ctext x='50' y='72' font-size='58' text-anchor='middle'%3E%F0%9F%92%9E%3C/text%3E%3C/svg%3E">
+<meta property="og:title" content="AI 合婚 · 测你俩的配对度">
+<meta property="og:description" content="输入两个名字,AI 测你俩的缘分配对度 + 人设标签。趣味测试。">
+<meta property="og:url" content="https://qizh.space/ce/hehun/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://qizh.space/og-default.png">
+<meta name="twitter:title" content="AI 合婚 · 测你俩的配对度">
+<meta name="twitter:description" content="输入两个名字,AI 测你俩的缘分配对度 + 人设标签。趣味测试。">
+<meta name="twitter:image" content="https://qizh.space/og-default.png">
+<meta name="keywords" content="AI 合婚,姓名配对,配对度测试,缘分测试,情侣配对,免费合婚,名字合婚">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"WebApplication","name":"AI 合婚 · 配对度测试","url":"https://qizh.space/ce/hehun/","description":"输入两个人的名字,AI 测你俩的缘分配对度:总分 + 人设标签 + 性格契合/沟通雷区/旺不旺。趣味测试,分享解锁完整版。","applicationCategory":"LifestyleApplication","operatingSystem":"Web","inLanguage":"zh-CN","browserRequirements":"Requires JavaScript","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"publisher":{"@type":"Person","name":"Zion","url":"https://qizh.space/"}},
+{"@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"AI 合婚需要填生日吗?","acceptedAnswer":{"@type":"Answer","text":"不需要。只要输入两个人的名字即可测配对度,不采集生日等隐私。"}},
+{"@type":"Question","name":"合婚结果准吗?","acceptedAnswer":{"@type":"Answer","text":"这是一款趣味测试,结果由 AI 生成,仅供娱乐,请勿当作婚恋决策依据。"}},
+{"@type":"Question","name":"要收费吗?","acceptedAnswer":{"@type":"Answer","text":"免费。分享给好友即可解锁完整配对解读。"}}
+]}
+]}
+</script>
+<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/bebas-neue-400.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/outfit-300.woff2" crossorigin>
+<link rel="stylesheet" href="/ce/ce.css">
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">ZI<span>O</span>N</a>
+  <div class="nav-r"><a href="/ce/" style="color:var(--gold)">测测</a><a href="/tool/">工具</a><a href="/prompt/">Prompt</a><a href="/join/">星球</a></div>
+</nav>
+<header>
+  <h1>AI 合婚</h1>
+  <p>输入两个名字,测你俩的缘分配对度 · 仅供娱乐</p>
+</header>
+
+<div class="wrap">
+  <div class="ce-stage" id="ce-stage">
+    <div class="ce-two">
+      <div class="ce-field"><label>你的名字</label><input id="na" maxlength="12" placeholder="如:小齐" autocomplete="off"></div>
+      <div class="ce-field"><label>TA 的名字</label><input id="nb" maxlength="12" placeholder="如:阿降" autocomplete="off"></div>
+    </div>
+    <div class="ce-field"><label>你们的关系</label><div class="ce-opts" id="rel">
+      <button class="ce-opt on" data-v="情侣">情侣</button><button class="ce-opt" data-v="暧昧">暧昧中</button><button class="ce-opt" data-v="朋友">朋友</button><button class="ce-opt" data-v="闺蜜基友">闺蜜/基友</button><button class="ce-opt" data-v="搭子">搭子</button>
+    </div></div>
+    <button class="ce-btn g ce-go" id="go">💞 测我俩的配对度</button>
+    <div class="ce-err" id="err"></div>
+  </div>
+  <div class="ce-loading" id="loading"><div class="ce-spin"></div><p style="color:var(--muted);font-size:13px;margin-top:12px">正在算你俩的缘分频率…</p></div>
+  <div class="ce-report" id="ce-report"></div>
+</div>
+<style>
+/* 页面可见 FAQ(与 head 中 FAQPage 结构化数据一致;仅本页内联,不改 ce.css)*/
+.ce-faq{max-width:640px;margin:38px auto 0;padding:0 20px}
+.ce-faq h2{font-family:var(--body);font-weight:600;font-size:18px;color:var(--gold-lt);text-align:center;letter-spacing:.02em;margin-bottom:16px}
+.ce-faq details{background:var(--panel);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;transition:border-color .2s}
+.ce-faq details[open]{border-color:rgba(201,168,76,.4)}
+.ce-faq summary{list-style:none;cursor:pointer;padding:14px 46px 14px 16px;position:relative;font-size:14.5px;font-weight:500;color:var(--white);line-height:1.6}
+.ce-faq summary::-webkit-details-marker{display:none}
+.ce-faq summary::after{content:"+";position:absolute;right:16px;top:12px;color:var(--gold);font-family:var(--mono);font-size:20px;line-height:1.4;transition:.2s}
+.ce-faq details[open] summary::after{content:"−"}
+.ce-faq details .a{padding:0 16px 15px;color:#c7c2b8;font-size:13.5px;line-height:1.75}
+/* 稀有度提示(结果分布,离线预计算;克制小字,不抢主信息)*/
+.ce-rare{max-width:520px;margin:8px auto 0;padding:0 12px;text-align:center;font-family:var(--mono);font-size:11.5px;line-height:1.85;color:var(--muted);letter-spacing:.02em}
+.ce-rare b{color:var(--gold-lt);font-weight:400}
+.ce-rare .badge{display:inline-block;margin-right:6px;padding:1px 7px;border:1px solid rgba(201,168,76,.5);border-radius:99px;background:rgba(201,168,76,.09);color:var(--gold);font-size:10.5px;letter-spacing:.08em}
+.ce-rare .src{display:block;margin-top:2px;color:var(--dim);font-size:10.5px}
+</style>
+<section class="ce-faq" aria-label="常见问题">
+  <h2>常见问题</h2>
+  <details><summary>AI 合婚需要填生日吗?</summary><div class="a">不需要。只要输入两个人的名字即可测配对度,不采集生日等隐私。</div></details>
+  <details><summary>合婚结果准吗?</summary><div class="a">这是一款趣味测试,结果由 AI 生成,仅供娱乐,请勿当作婚恋决策依据。</div></details>
+  <details><summary>要收费吗?</summary><div class="a">免费。分享给好友即可解锁完整配对解读。</div></details>
+</section>
+
+<footer>AI 合婚 · 趣味娱乐 · <a href="/ce/">更多测测</a> · <a href="/">qizh.space</a> · 微信搜「Zion降噪」</footer>
+
+<script src="/ce/engine.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+let rel='情侣';
+$('rel').querySelectorAll('button').forEach(b=>b.onclick=()=>{$('rel').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');rel=b.dataset.v;});
+
+const cfg={ id:'hehun', 名字:'AI 合婚', 图标:'💞',
+  sections:[
+    {h:'💘 缘分总览', pools:[[
+      ['你俩这组合,一见面空气里就有电流——不是一般的对眼。',3],
+      ['缘分是有的,但属于"慢炖型",越处越香那种。',3],
+      ['你俩的缘分像 WiFi 满格,信号强到隔着一屋子人都能自动连上。',3],
+      ['第一眼可能不惊艳,可越看越顺眼,后劲大得像后劲很大的酒。',2],
+      ['你俩像磁铁的两极,离不开也常互相拉扯,分分合合能演八季。',2],
+      ['天生自带默契频道,一个眼神就能对上暗号,旁人完全插不进话。',3],
+      ['属于"欢喜冤家"款,吵吵闹闹反而黏得更紧,一天不斗嘴浑身难受。',2],
+      ['你俩这缘分是那种"命里躲不掉"的,兜兜转转还是会撞回一起。',2],
+      ['缘分浓度爆表,只是配方里辣椒放多了:甜的时候齁甜,辣的时候呛人。',2],
+      ['你俩像两只互相取暖的刺猬,靠太近扎手、离太远又冷,得慢慢磨那个距离。',2],
+      ['第一印象大概率是互相看不上,结果打脸打得啪啪响,真香。',1.5],
+      ['你俩的频率天然对得上,别人聊三小时的进度,你俩五分钟就到位。',2],
+      ['你俩这缘分像连续剧,前几集平平无奇,越往后越舍不得关。',2],
+      ['一个负责发疯、一个负责收拾残局,分工明确,这缘分反而稳。',2],
+      ['你俩是那种"朋友都看出来了、就你俩还在装傻"的经典组合。',1.5]]]},
+    {h:'🧩 性格契合', pools:[[
+      ['一个爱冲、一个能稳,正好互补,谁也别嫌谁。',3],
+      ['两个都是有主意的人,好处是聊得来,坏处是都不爱先低头,能僵一整天。',3],
+      ['一个负责制造快乐、一个负责踩刹车,搭配起来日子不会翻车。',2],
+      ['性格像得吓人,优点缺点都同款——爽起来很爽,踩雷也一起踩。',2],
+      ['一个外放一个内敛,刚好一个把话说出口、一个把事放心里。',2],
+      ['你俩都是嘴硬心软型,明明在乎得要死,偏要装作无所谓。',3],
+      ['一个 E 人一个 I 人:出门 E 人负责社交,回家 I 人负责回血,绝配。',3],
+      ['两个都是"计划赶不上变化"选手,好在都随遇而安,乱中有序。',2],
+      ['一个理性得像 Excel、一个感性得像抒情诗,吵起来根本不在一个频道。',2],
+      ['都是拖延症晚期:好处是互相理解,坏处是没人催,事儿全烂在手里。',2],
+      ['一个话痨一个树洞,一个负责输出一个负责点头,天生的黄金搭档。',2],
+      ['你俩都是"刀子嘴豆腐心",互相扎心又互相心疼,外人看着都替你俩累。',2],
+      ['一个记仇一个健忘,刚好一个负责翻旧账、一个负责已读即忘,扯平了。',1.5],
+      ['两个都是"我没事"专业户,有事全憋着,建议定期强制交心一次。',2]]]},
+    {h:'⚡ 沟通雷区', pools:[[
+      ['最大的雷是"我以为你懂",别猜,把话讲明白就没事。',3],
+      ['冷战是你俩的头号杀手——谁先服软谁就是赢家,别硬撑。',3],
+      ['容易在小事上较真,记住:赢了道理、输了感情,亏大了。',2],
+      ['一个想聊、一个想静,给彼此留点独处的空当会更顺。',2],
+      ['翻旧账是禁区,一翻就炸,就事论事能救你俩很多次架。',3],
+      ['你俩吵架爱甩"随便你"三个字,杀伤力堪比核弹,慎用。',3],
+      ['最容易在"到底吃什么"这种世纪难题上互相消耗,建议轮流做决定。',2],
+      ['一个想被哄、一个不会看眼色,雷区就埋在"你为什么还不主动"。',2],
+      ['忌报喜不报忧,小情绪憋久了会攒成大账单,一次性爆发很吓人。',2],
+      ['你俩容易把"开玩笑"玩过火,分寸感是必修课,别拿痛处当梗。',2],
+      ['最大的坑是各自脑补:一个已经想到分手,另一个还在想晚饭吃啥,离谱。',2],
+      ['忌当着外人的面拆台,面子这东西,给对方留一点,日子好过很多。',2],
+      ['一句"你变了"能瞬间点燃战火,少用这种上纲上线的句式。',1.5],
+      ['手机是你俩的隐形第三者,吃饭时把它扣桌上,关系立刻升温。',2]]]},
+    {h:'🔥 旺不旺 · 给你的建议', pools:[[
+      ['你俩互相旺——TA 会把你往更好的方向带,值得用心。',3],
+      ['这段关系旺事业也旺心态,是那种"越处越像样"的组合。',2],
+      ['旺是旺,但得两个人都往里投入,单方面使劲会累到怀疑人生。',2],
+      ['短期火花足,长期靠的是"把浪漫落进日常"的本事。',2],
+      ['缘分给了开头,能走多远看你俩愿不愿意为对方改一点点。',3],
+      ['你俩在一起会越来越有钱缘——不是玄学,是彼此都想让对方过更好。',2],
+      ['TA 是你的"情绪充电宝",累的时候往 TA 那儿一靠,电量就回来了。',3],
+      ['这组合旺桃花还旺食欲,小心处着处着就一起悄悄胖了三斤。',2],
+      ['你俩最旺的是"事业合伙人"属性,一起搞点啥,大概率能成。',2],
+      ['少说"都行、随便、无所谓",多说"我想和你一起",立竿见影。',2],
+      ['你俩适合定期给关系充"仪式感":纪念日别嫌俗,俗气的浪漫最养人。',2],
+      ['旺归旺,别把对方当理所当然——再旺的火,不添柴也会灭。',2],
+      ['多夸对方、少挑刺,你俩的运势会跟着好话一起水涨船高。',1.5],
+      ['把"为你好"换成"我陪你",这段关系立刻从紧张模式切到治愈模式。',2]]]}
+  ]};
+
+const TAG1=['互补','同频','冰火','欢喜冤家','细水长流','一见如故','拉扯','治愈','上头','慢热','双向奔赴','相爱相杀','清醒','爆火花','磁场','对味'];
+const TAG2=['拉扯型','治愈型','黄金搭子','冒险家','过命之交','慢热型','互宠型','互怼型','合伙人','显眼包组合','搞钱搭档','养生局','事业线','嘴替型','充电宝','soulmate'];
+const RARE=[['天生一对·万里挑一',0.04],['前世冤家·相爱相杀',0.05],['贵人式姻缘',0.05],['祖传绝配·原厂配对',0.03],['互为嘴替·灵魂双胞胎',0.04],['官宣预定款·亲友团催得最凶那对',0.04]];
+
+/* ══ 稀有度表(离线预计算 · 硬编码静态数据)══
+   这个工具是确定性生成器(同输入同结果),所以结果分布可枚举:离线跑了 20 万个随机种子
+   (5 种关系轮转)过同一套算法,统计配对度与彩蛋的出现频率,把结果表贴在下面。
+   运行时只查表,不做任何统计、不采集也不上传任何用户数据。
+   RARITY_CUM[分数] = 配对度 ≥ 该分数的结果占比(%) */
+const RARITY_CUM={99:0.1,98:0.6,97:2.1,96:5.0,95:9.6,94:14.7,93:19.3,92:22.9,91:25.6,90:28.4,89:31.9,88:36.3,87:41.9,86:48.3,85:55.5,84:63.0,83:70.4,82:77.2,81:83.3,80:88.4,79:92.5,78:95.4,77:97.5,76:98.7,75:99.4,74:99.8,73:99.9};
+/* 各稀有缘分彩蛋自己的触发率(%);任一彩蛋触发的总概率 22.6% */
+const RARITY_EGG={'天生一对·万里挑一':4.1,'前世冤家·相爱相杀':4.8,'贵人式姻缘':4.6,'祖传绝配·原厂配对':2.6,'互为嘴替·灵魂双胞胎':3.3,'官宣预定款·亲友团催得最凶那对':3.2};
+const cumOf=s=>RARITY_CUM[s]!=null?RARITY_CUM[s]:(s>99?0.1:100);
+const fmtP=p=>(p>0&&p<0.1)?'<0.1%':(Math.round(p*10)/10).toFixed(1)+'%';   // 极小概率别显示成 0.0%
+const lead=p=>p<25?'只有 ':'';        // 常见档位别硬说"只有",不然一眼假
+/* 结果页:在大分数下方补一行克制的稀有度提示(engine.js 渲染完再插入,不改引擎)*/
+function injectRarity(html){
+  const box=document.getElementById('ce-report');
+  const a=box.querySelector('.ce-score')||box.querySelector('.ce-sub')||box.querySelector('.ce-tag');
+  if(!a)return;
+  const d=document.createElement('div');d.className='ce-rare';d.innerHTML=html;
+  a.parentNode.insertBefore(d,a.nextSibling);
+}
+
+$('go').onclick=()=>{
+  const a=$('na').value.trim(), b=$('nb').value.trim();
+  if(!a||!b){$('err').textContent='把两个名字都填上呀 💞';return;}
+  $('err').textContent='';$('ce-stage').style.display='none';$('loading').style.display='block';
+  setTimeout(()=>{
+    const seed=[a,b].sort().join('&')+'|'+rel;
+    const rng=CE.rngFrom(seed);
+    const parts=CE.buildParts(cfg,rng);
+    // 稀有特殊(加权)
+    let rare='';RARE.forEach(r=>{if(!rare&&rng()<r[1])rare=r[0];});
+    if(rare)parts.push({h:'✨ 特殊缘分', p:'你俩测出了「'+rare+'」。所有结果里只有 '+fmtP(RARITY_EGG[rare])+' 能触发这个彩蛋,截图存好别弄丢了。'});
+    const tag='【'+CE.pick(rng,TAG1)+CE.pick(rng,TAG2)+'】';
+    /* 四维先出;稀有缘分整体抬升各维基线(彩蛋 → 维度高 → 总分自然高) */
+    const D=(lo,hi)=>Math.min(99,Math.round(lo+rng()*(hi-lo)));
+    /* 分数整体偏高是刻意的:这是娱乐工具,人爱听好话,低分没人愿意截图转发 */
+    const dXin  = rare?D(90,99):D(72,97);   // 心动
+    const dMo   = rare?D(90,99):D(72,97);   // 默契
+    const dMag  = rare?D(86,97):D(68,94);   // 磨合
+    const dChang= rare?D(91,99):D(71,97);   // 长久
+    const dims=[['💘心动',dXin],['🤝默契',dMo],['⚡磨合',dMag],['💍长久',dChang]];
+    /* 配对度 = 四维加权平均(长久/默契最能决定一段关系走多远)+ 微扰,并锁死在四维区间内 */
+    const _w=0.22*dXin+0.28*dMo+0.18*dMag+0.32*dChang;
+    const _lo=Math.min(dXin,dMo,dMag,dChang), _hi=Math.max(dXin,dMo,dMag,dChang);
+    const score=Math.max(_lo,Math.min(_hi,Math.round(_w+(rng()*4-2))));
+    const cum=cumOf(score);
+    const result={
+      heading:'你俩的配对度', tag, sub:a+' × '+b+' · '+rel,
+      big:score, bigLabel:'配对度', dims, parts,
+      card:{kicker:'💞 AI 合婚 · 配对度', title:tag, sub:a+' × '+b, big:score,
+            bigLabel:'配对度 · '+score+' 分以上占 '+fmtP(cum), dims, hook:(parts[0]&&parts[0].p)||''},
+      shareText:'我和 TA 的配对度是 '+score+' 分!'+tag+' 来测测你俩的 👉 微信搜「Zion降噪」,回复「测测」拿全部'
+    };
+    $('loading').style.display='none';
+    CE.render(cfg, result);
+    injectRarity(
+      (cum<5?'<span class="badge">稀有</span>':'')+
+      lead(cum)+'<b>'+fmtP(cum)+'</b> 的结果能到 '+score+' 分或更高'+
+      (rare?'<br>稀有缘分「'+rare+'」的出现率 <b>'+fmtP(RARITY_EGG[rare])+'</b>':'')+
+      '<span class="src">占比由离线跑 20 万个随机种子统计得出 · 不含任何用户数据</span>');
+  },600);
+};
+</script>
+<script src="/wxtip.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>前世今生 · 测你的前世身份与今生功课 — qizh.space</title>
+<meta name="description" content="输入名字与性别,测出你的前世身份、前世的故事、带到今生的天赋、今生要还的功课与贵人方位。趣味测试,分享解锁完整版。">
+<link rel="canonical" href="https://qizh.space/ce/qianshi/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230a0908'/%3E%3Ctext x='50' y='72' font-size='58' text-anchor='middle'%3E%F0%9F%AA%B7%3C/text%3E%3C/svg%3E">
+<meta property="og:title" content="前世今生 · 测你的前世身份与今生功课">
+<meta property="og:description" content="输入名字与性别,测出你的前世身份 + 前世故事 + 今生天赋与功课。趣味测试。">
+<meta property="og:url" content="https://qizh.space/ce/qianshi/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://qizh.space/og-default.png">
+<meta name="twitter:title" content="前世今生 · 测你的前世身份与今生功课">
+<meta name="twitter:description" content="输入名字与性别,测出你的前世身份 + 前世故事 + 今生天赋与功课。趣味测试。">
+<meta name="twitter:image" content="https://qizh.space/og-default.png">
+<meta name="keywords" content="前世今生,前世身份测试,今生功课,前世测试,趣味测试,我的前世,免费测试">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"WebApplication","name":"前世今生测试","url":"https://qizh.space/ce/qianshi/","description":"输入名字与性别,测出你的前世身份、前世的故事、带到今生的天赋、今生要还的功课与贵人方位。趣味测试,分享解锁完整版。","applicationCategory":"LifestyleApplication","operatingSystem":"Web","inLanguage":"zh-CN","browserRequirements":"Requires JavaScript","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"publisher":{"@type":"Person","name":"Zion","url":"https://qizh.space/"}},
+{"@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"要填什么信息?","acceptedAnswer":{"@type":"Answer","text":"只需输入名字与性别,即可生成前世身份、前世故事与今生功课。"}},
+{"@type":"Question","name":"结果是真的吗?","acceptedAnswer":{"@type":"Answer","text":"这是一款趣味测试,内容由 AI 生成,纯属娱乐与想象,请勿当真。"}},
+{"@type":"Question","name":"免费吗?","acceptedAnswer":{"@type":"Answer","text":"免费。分享后可解锁完整前世故事与今生功课解读。"}}
+]}
+]}
+</script>
+<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/bebas-neue-400.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/outfit-300.woff2" crossorigin>
+<link rel="stylesheet" href="/ce/ce.css">
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">ZI<span>O</span>N</a>
+  <div class="nav-r"><a href="/ce/" style="color:var(--gold)">测测</a><a href="/tool/">工具</a><a href="/prompt/">Prompt</a><a href="/join/">星球</a></div>
+</nav>
+<header>
+  <h1>前世今生</h1>
+  <p>输入名字,看看你的前世是谁 · 仅供娱乐</p>
+</header>
+
+<div class="wrap">
+  <div class="ce-stage" id="ce-stage">
+    <div class="ce-field"><label>你的名字</label><input id="nm" maxlength="12" placeholder="如:小齐" autocomplete="off"></div>
+    <div class="ce-field"><label>性别</label><div class="ce-opts" id="sex">
+      <button class="ce-opt on" data-v="男">👦 男</button><button class="ce-opt" data-v="女">👧 女</button><button class="ce-opt" data-v="不限">✨ 不限</button>
+    </div></div>
+    <button class="ce-btn g ce-go" id="go">🪷 测我的前世</button>
+    <div class="ce-err" id="err"></div>
+  </div>
+  <div class="ce-loading" id="loading"><div class="ce-spin"></div><p style="color:var(--muted);font-size:13px;margin-top:12px">正在拨开三生迷雾,回溯你的前世…</p></div>
+  <div class="ce-report" id="ce-report"></div>
+</div>
+<style>
+/* 页面可见 FAQ(与 head 中 FAQPage 结构化数据一致;仅本页内联,不改 ce.css)*/
+.ce-faq{max-width:640px;margin:38px auto 0;padding:0 20px}
+.ce-faq h2{font-family:var(--body);font-weight:600;font-size:18px;color:var(--gold-lt);text-align:center;letter-spacing:.02em;margin-bottom:16px}
+.ce-faq details{background:var(--panel);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;transition:border-color .2s}
+.ce-faq details[open]{border-color:rgba(201,168,76,.4)}
+.ce-faq summary{list-style:none;cursor:pointer;padding:14px 46px 14px 16px;position:relative;font-size:14.5px;font-weight:500;color:var(--white);line-height:1.6}
+.ce-faq summary::-webkit-details-marker{display:none}
+.ce-faq summary::after{content:"+";position:absolute;right:16px;top:12px;color:var(--gold);font-family:var(--mono);font-size:20px;line-height:1.4;transition:.2s}
+.ce-faq details[open] summary::after{content:"−"}
+.ce-faq details .a{padding:0 16px 15px;color:#c7c2b8;font-size:13.5px;line-height:1.75}
+/* 稀有度提示(结果分布,离线预计算;克制小字,不抢主信息)*/
+.ce-rare{max-width:520px;margin:8px auto 0;padding:0 12px;text-align:center;font-family:var(--mono);font-size:11.5px;line-height:1.85;color:var(--muted);letter-spacing:.02em}
+.ce-rare b{color:var(--gold-lt);font-weight:400}
+.ce-rare .badge{display:inline-block;margin-right:6px;padding:1px 7px;border:1px solid rgba(201,168,76,.5);border-radius:99px;background:rgba(201,168,76,.09);color:var(--gold);font-size:10.5px;letter-spacing:.08em}
+.ce-rare .src{display:block;margin-top:2px;color:var(--dim);font-size:10.5px}
+</style>
+<section class="ce-faq" aria-label="常见问题">
+  <h2>常见问题</h2>
+  <details><summary>要填什么信息?</summary><div class="a">只需输入名字与性别,即可生成前世身份、前世故事与今生功课。</div></details>
+  <details><summary>结果是真的吗?</summary><div class="a">这是一款趣味测试,内容由 AI 生成,纯属娱乐与想象,请勿当真。</div></details>
+  <details><summary>免费吗?</summary><div class="a">免费。分享后可解锁完整前世故事与今生功课解读。</div></details>
+</section>
+
+<footer>前世今生 · 趣味娱乐 · <a href="/ce/">更多测测</a> · <a href="/">qizh.space</a> · 微信搜「Zion降噪」</footer>
+
+<script src="/ce/engine.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+let sex='男';
+$('sex').querySelectorAll('button').forEach(b=>b.onclick=()=>{$('sex').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');sex=b.dataset.v;});
+
+/* ── 前世身份池(加权;m男/f女/n不限 三种用词;rare=稀有魂种)── */
+const ROLES=[
+  [{m:'江湖游医',f:'悬壶女医',n:'江湖游医',tale:'那一世你背着一只旧药箱走南闯北,哪里有瘟疫伤病就往哪里去,救过的人多到自己都数不清。'},3],
+  [{m:'西域商队首领',f:'西域商队女掌柜',n:'西域商队首领',tale:'那一世你带着驼队穿越大漠,一头连着长安的绸缎,一头连着遥远的异国,在风沙里谈过无数笔惊险的买卖。'},3],
+  [{m:'深宫画师',f:'深宫女画师',n:'深宫画师',tale:'那一世你在森严的宫墙里替帝王将相描摹容颜,见过最尊贵的排场,也看透了最凉薄的人心。'},2.5],
+  [{m:'边关戍将',f:'巾帼戍将',n:'边关戍将',tale:'那一世你镇守在苦寒的边关,多少个不眠之夜握刀听风雪,把整个青春和一腔热血都留给了那道城墙。'},2.5],
+  [{m:'山中隐士',f:'山中女冠',n:'山中隐士',tale:'那一世你避开尘世独居深山,与云雾松涛为伴,参悟天地,看破了许多别人一辈子都想不明白的事。'},2],
+  [{m:'织锦匠人',f:'江南绣娘',n:'江南绣娘',tale:'那一世你守着针线与织机,一针一线里织进了半生的心事;你亲手做过的嫁衣,成全过许多人的姻缘。'},2],
+  [{m:'走江湖的说书人',f:'茶楼卖唱女伶',n:'走江湖的说书人',tale:'那一世你靠一张嘴讨生活,在茶楼酒肆里讲尽古今悲欢,台下人听你的故事落泪,你却把自己的故事咽了下去。'},2],
+  [{m:'塞外牧马人',f:'草原牧羊女',n:'塞外牧马人',tale:'那一世你生在草原,逐水草而居,与马群和长风为伴,一生没被任何一堵墙关住过。'},2],
+  [{m:'制香匠人',f:'制香女匠',n:'制香匠人',tale:'那一世你以香为业,识得百草千木的脾性,一缕香能安神、能疗愈,也能勾起某个人一生的执念。'},2],
+  [{m:'钦天监观星人',f:'夜观天象的女官',n:'钦天监观星人',tale:'那一世你夜夜登台观星,替朝廷推演天时吉凶,知道太多不该知道的秘密,也因此活得格外孤独。'},1.5],
+  [{m:'镖局镖头',f:'走镖女侠',n:'镖局镖头',tale:'那一世你保镖走货,在刀口上讨生活,讲的是一个"信"字——答应过的事,拼了命也要送到。'},2],
+  [{m:'私塾先生',f:'闺塾女师',n:'私塾先生',tale:'那一世你教书育人,清贫却自守,看着一批批孩子长大成人;桃李不言,你的名字被许多人记了一辈子。'},2],
+  [{m:'深山采药人',f:'深山采药女',n:'深山采药人',tale:'那一世你攀绝壁、涉险涧,只为寻一味能救命的药,与山川草木相处的时间,比与人还多。'},2],
+  [{m:'铸剑师',f:'铸剑女师',n:'铸剑师',tale:'那一世你以炉火为伴,千锤百炼铸就名剑,你早早懂得一个道理:真正的锋利,是熬出来的。'},1.5],
+  [{m:'落魄书生',f:'咏絮才女',n:'落魄书生',tale:'那一世你满腹诗书却时运不济,几度沉浮、几度飘零,把一腔不得志都写进了诗词里,字字都是心血。'},2],
+  [{m:'宫廷乐师',f:'琵琶乐伎',n:'宫廷乐师',tale:'那一世你以乐侍人,一曲能动帝王之心,也能引满座宾客落泪;繁华散尽后,只剩弦上余音陪你。'},1.5],
+  [{m:'渡口摆渡人',f:'渡口摆渡人',n:'渡口摆渡人',tale:'那一世你守着一条渡船,把无数人渡到对岸,听过太多离别与重逢,自己却始终留在原地。'},2],
+  [{m:'走方货郎',f:'挑担女货郎',n:'走方货郎',tale:'那一世你挑着货担走村串巷,一声吆喝就是半生营生,见惯了人间的柴米油盐、悲欢冷暖。'},2],
+  [{m:'远洋船长',f:'掌舵女船主',n:'远洋船长',tale:'那一世你把命交给大海,乘风破浪去往地图之外的地方,见过最壮阔的日出,也差点葬身鱼腹。'},1.5],
+  [{m:'游方术士',f:'占卜女巫',n:'游方术士',tale:'那一世你替人卜问吉凶、指点迷津,看得清别人的命,却算不准自己的路。'},1.5],
+  [{m:'敦煌壁画师',f:'敦煌女画工',n:'敦煌壁画师',tale:'那一世你在幽暗的洞窟里,就着一盏油灯画满整壁的飞天与佛陀,把一生献给了永不褪色的信仰。'},1],
+  [{m:'前朝史官',f:'掌书女史',n:'前朝史官',tale:'那一世你握着一支史笔,记录王朝的兴衰荣辱,你写下的每个字都要对得起后世,哪怕为此得罪当权者。'},1],
+  [{m:'茶马古道马帮汉',f:'茶马古道女马帮',n:'茶马古道马帮汉',tale:'那一世你赶着马帮走在悬崖峭壁的茶马古道上,一边是深渊、一边是云海,把茶砖与盐巴驮过一座又一座雪山。'},2],
+  [{m:'漕运船工',f:'漕运女舵手',n:'漕运船工',tale:'那一世你在大运河上讨生活,南来北往运着粮米货物,一条河的水你喝了半辈子,两岸的悲欢你也看了半辈子。'},2],
+  [{m:'御膳房厨子',f:'御膳房女厨',n:'御膳房厨子',tale:'那一世你在宫里掌勺,一道菜能博龙颜一笑,也能因一粒沙丢了性命;你把一生的战战兢兢,都熬进了那锅高汤里。'},2],
+  [{m:'守陵人',f:'守陵女官',n:'守陵人',tale:'那一世你守着一座帝王陵,与石人石马为伴,替长眠地下的人守了一辈子的寂静,连风都不敢大声。'},1.5],
+  [{m:'江湖郎中',f:'走方女郎中',n:'江湖郎中',tale:'那一世你一根银针、一把草药走天下,专治疑难杂症,救人无数,却治不好自己那颗四海为家、停不下来的心。'},2],
+  [{m:'烽火台戍卒',f:'烽火台女兵',n:'烽火台戍卒',tale:'那一世你独守一座烽火台,日复一日望着空荡荡的地平线,把青春都熬成了等待,只为在敌来那一刻点燃狼烟。'},1.5],
+  [{m:'古镇当铺掌柜',f:'当铺女掌柜',n:'古镇当铺掌柜',tale:'那一世你守着一间当铺,收进过无数人走投无路时押上的宝贝,也听尽了柜台后那一声声无处说的叹息。'},2],
+  [{m:'酿酒师',f:'酿酒女师',n:'酿酒师',tale:'那一世你以酒为生,最懂等待的滋味——好酒和好事一样,都急不得,得埋进时光里慢慢发酵。'},2],
+  [{m:'皮影艺人',f:'皮影女艺人',n:'皮影艺人',tale:'那一世你一双手撑起整座戏台,幕布后忽明忽暗,你替千军万马、才子佳人活过一遭,自己却始终躲在光的背面。'},1.5],
+  [{m:'风水堪舆师',f:'堪舆女师',n:'风水堪舆师',tale:'那一世你翻山越岭替人寻龙点穴,看得懂山川的走势与人间的气数,替别人安排了太多的身后事。'},1.5],
+  [{m:'远行僧',f:'远行尼',n:'远行僧',tale:'那一世你只身西行求法,鞋底磨穿了一双又一双,把万水千山踩在脚下,只为求一个心里的答案。'},1.5],
+  [{m:'匠作监木匠',f:'巧手女木匠',n:'匠作监木匠',tale:'那一世你一斧一凿造楼建阁,不用一根铁钉就能让屋子屹立百年——你早懂得,真正结实的东西靠的是严丝合缝的耐心。'},2],
+  [{m:'边贸译语人',f:'边贸女译语',n:'边贸译语人',tale:'那一世你通晓数国言语,在关口替南来北往的商旅传话议价,见惯了各色人等,也最懂"话该怎么说"这门学问。'},1.5],
+  [{m:'养鹰的猎户',f:'驯鹰女猎户',n:'养鹰的猎户',tale:'那一世你养着一只神骏的猎鹰,一人一鹰行走山林,你放它高飞、它总会回来——你早早就懂了自由与羁绊的分寸。'},1.5],
+  [{m:'流亡储君',f:'流亡公主',n:'流亡储君',rare:true,tale:'那一世你本该君临天下,却在一夜之间国破家亡,隐姓埋名流落民间,把满腔抱负与不甘,都藏进了一个假名字里。'},0.5],
+  [{m:'一代宗师',f:'一代女宗师',n:'一代宗师',rare:true,tale:'那一世你武功登峰造极、桃李满天下,却在功成名就时急流勇退归隐山林——你早就明白,最高的境界是收,不是放。'},0.6],
+  [{m:'云游画僧',f:'云游画尼',n:'云游画僧',rare:true,tale:'那一世你半僧半画,云游四方,以笔墨为修行,走到哪画到哪,随缘而来,随缘而去。'},0.8],
+  [{m:'开国功臣',f:'辅国女杰',n:'开国功臣',rare:true,tale:'那一世你随主起于微末,出生入死打下一片江山,功成之后却深谙"月满则亏"的道理,懂得急流勇退。'},0.8],
+  [{m:'转世高僧',f:'一代尼庵住持',n:'转世高僧',rare:true,tale:'那一世你早已勘破生死,青灯古佛,普度众生,你的一句话曾点醒过无数迷途的人——这已是你无数次乘愿再来。'},0.5],
+  [{m:'末代皇族',f:'亡国公主',n:'末代皇族',rare:true,tale:'那一世你生于钟鸣鼎食之家,享过泼天的富贵,也亲眼看着王朝倾覆、繁华成灰,从云端跌落尘埃。'},0.5]
+];
+
+/* ── 一句定性(亮眼可截图)── */
+const DINGXING=[
+  '那一世你走过的路,比这一生大多数人梦里见过的都远。',
+  '你不是第一次来人间了——这具身体是新的,灵魂却是旧的。',
+  '你身上那股"不属于此刻"的疏离感,就是从那一世带来的。',
+  '有些事你一学就会、一见如故,那是前世留下的肌肉记忆。',
+  '你总隐隐觉得该去某个地方、该成为某种人——那是旧灵魂在提醒你。',
+  '那一世你没做完的事,这一世会换一种方式,重新找上门来。',
+  '你偶尔会对某个陌生场景莫名心动,那是灵魂认出了它的来处。',
+  '你这一生的很多选择,其实早在那一世就埋下了伏笔。',
+  '你梦里反复出现的那个场景,不是你瞎编的,是灵魂在放旧片子。',
+  '你莫名讨厌或偏爱某样东西、说不出理由——理由早在上一世就写好了。',
+  '你身上有种和年龄不符的"老灵魂"感,那是好几世活下来磨出的包浆。',
+  '你听到某段旋律、闻到某种气味会突然鼻酸,那是前世的记忆在敲门。',
+  '你总觉得自己"生错了年代",其实你没错,是灵魂还惦记着旧时光。',
+  '你对某类人天生就亲、对某类人天生就防,那是上一世结下的缘与结。',
+  '你这辈子的性子,一半是爹妈给的,一半是那一世自己修来的。',
+  '你偶尔会做一些"这辈子根本没经历过"的梦——那不是梦,是回放。'
+];
+
+/* ── 前世故事的收束句 ── */
+const STORY_END=[
+  '那一世的结局并不圆满,却把一颗种子悄悄埋进了你的灵魂。',
+  '你在那一世学会的东西,如今已成了你骨子里的一部分。',
+  '这段故事你早已忘记,但你今生的每个选择里,处处是它的影子。',
+  '直到今天,你在深夜偶尔涌起的那股乡愁,就来自那里。',
+  '那一世你爱过、也失去过,这份分量,你今生仍在慢慢偿还。',
+  '尘埃落定时你才明白,那一世真正教会你的,是如何与自己和解。',
+  '那一世的遗憾没能补上,便化成了你今生一直在追的那样东西。',
+  '那段日子里陪过你的人,这一世多半又会以另一副面孔回到你身边。',
+  '那一世你没说出口的那句话,这一世,请一定找机会说出来。',
+  '故事的最后你终于放下了执念,可那份牵挂,还是跟着你转世而来。',
+  '那一世你把最好的都给了别人,这一世,轮到你先对自己好了。',
+  '命运在那一世给你上的课,你这一世还在补考,但已经快及格了。',
+  '那一世落幕得悄无声息,却把一身本事和脾气,原封不动留给了今天的你。',
+  '那段往事随风散了,唯独那股"不服输"的劲儿,一路跟到了现在。'
+];
+
+/* ── 你带到今生的天赋 ── */
+const TALENT=[
+  ['你天生对人心敏感,三两句话就能听出对方话里的话——这是那一世练出来的本事。',3],
+  ['你有一种"临危不乱"的定力,越是乱局越清醒,别人慌你反而稳。',3],
+  ['你的手很巧、眼光也毒,对美和细节有近乎本能的判断。',2],
+  ['你自带一种让人愿意信任、愿意跟随的气场,这是领袖型灵魂的印记。',2],
+  ['你有极强的方向感和求生欲,扔到哪儿都能活下来,还能活出个样子。',2],
+  ['你对文字、声音或图像格外敏锐,创作几乎是你灵魂的母语。',2],
+  ['你有治愈别人的能力,人待在你身边就莫名安心、莫名想倾诉。',2],
+  ['你的直觉准得吓人,那些"说不清但就是知道"的时刻,是旧灵魂在替你判断。',2],
+  ['你耐得住寂寞、扛得起长线,别人图快,你却懂得"慢就是快"。',1.5],
+  ['你天生是个讲故事的人,总能把平淡的日子说得让人愿意听下去。',1.5],
+  ['你有种"化繁为简"的天赋,再乱的摊子到你手里,三两下就能理出头绪。',2],
+  ['你天生记性好、悟性高,别人要练十遍的东西,你看两眼就会了七八分。',2],
+  ['你有一副好口才,关键时刻一开口就能镇住场子,把话说到人心坎里。',2],
+  ['你的审美是刻在骨子里的,穿什么、摆什么,不用学就自带高级感。',1.5],
+  ['你有一种"逢凶化吉"的运气,总在最险的关头,莫名其妙就转危为安。',1.5],
+  ['你对数字和规律天生敏感,别人眼里的一团乱,你一眼就能看出门道。',1.5],
+  ['你天生手稳心细,做精细活儿有耐心,是那种能把小事做到极致的人。',1.5],
+  ['你有一双"看人很准"的眼睛,谁真心谁假意你心里门儿清,只是懒得拆穿。',2],
+  ['你自带一股韧劲,像野草,压得越狠反弹越猛,轻易压不垮。',2],
+  ['你有种"苦中作乐"的本事,再难的日子也能被你过出点滋味来。',1.5]
+];
+
+/* ── 今生要还的功课 ── */
+const LESSON=[
+  ['这一世你要学的,是"放下控制"——不是所有事都得攥在手里才安全。',3],
+  ['你要还的功课是"信任":那一世你被辜负过,这一世请再给世界一次机会。',3],
+  ['你这一世要练的,是"把爱说出口"——别再习惯性地把在乎藏进沉默里。',2],
+  ['你要学会"停下来":那一世你太拼了,这一世允许自己歇口气,天塌不下来。',2],
+  ['你的功课是"扎根":那一世你漂泊得太久,这一世,你值得一个真正的家。',2],
+  ['你要还的,是"原谅自己"——那件你一直耿耿于怀的事,其实早该翻篇了。',2],
+  ['你这一世要学"接受失去":抓得越紧越留不住,松开手,反而拥有更多。',2],
+  ['你的功课是"被看见":别再习惯性退到角落,你本就该站在光里。',2],
+  ['你要练的是"表达真实的自己"——那一世你太懂得隐忍,这一世不必再委屈。',1.5],
+  ['你这一世的课题是"接住机会":当年你因犹豫错过太多,这次看到就先接住。',1.5],
+  ['你要修的是"课题分离":别人的情绪不是你的责任,你不必替全世界买单。',2],
+  ['你这一世要学"求助":逞强了太多世,这次试着说一句"我需要帮忙"。',2],
+  ['你的功课是"慢下来爱一个人":那一世你总在赶路,错过了身边最重要的人。',2],
+  ['你要还的是"善待身体":那一世你太不拿命当回事,这一世请好好吃饭好好睡。',2],
+  ['你这一世要学"接受平凡":不是每件事都要惊天动地,把日子过好本身就是本事。',2],
+  ['你的课题是"设立边界":那一世你太好说话,这一世请学会理直气壮地说"不"。',2],
+  ['你要练的是"相信自己配得上":好东西来了别急着推开,你值得,真的。',2],
+  ['你这一世要还的,是"放过一个人"——包括那个一直没放过自己的你。',1.5],
+  ['你的功课是"享受当下":别总活在对未来的担忧里,此刻的风也很好。',1.5],
+  ['你要学的是"不必赢下每一场":有时候退一步不是输,是给自己留了后路。',2]
+];
+
+/* ── 今生贵人方位 ── */
+const DIR=[
+  ['你的贵人在东南方,多半是位比你年长、说话不紧不慢的人,遇事不妨多请教。',2],
+  ['你的贵人在正北,是个看起来清冷、实则极靠谱的人,关键时刻会拉你一把。',2],
+  ['你的贵人在西南,往往通过"朋友的朋友"出现,多走动、多社交,自然遇上。',2],
+  ['你的贵人在正东,是个比你年轻、有股冲劲的人,会给你带来意料之外的新机会。',2],
+  ['你的贵人在西北方,是位有权威、有资源的长辈型人物,值得你诚心结交。',2],
+  ['你的贵人,就藏在"你正犹豫要不要联系"的那个旧识里——主动一点,梯子就来了。',2],
+  ['你的贵人在正南,多和"你真正热爱的那件事"相关:去做喜欢的事,人自然对上频。',2],
+  ['你的贵人在东北方,是个话不多却一诺千金的人,交浅须慎言,交深则可托付终身。',1.5],
+  ['你的贵人是个"看起来不太好惹"的人,别被那张脸劝退,处下去你会赚到。',1.5],
+  ['你的贵人常出现在饭局茶桌上,该应的局别总推,缘分有时就在一杯茶、一顿饭里。',1.5],
+  ['你的贵人可能比你小一辈——一个你本以为要照顾、结果反过来帮了你大忙的年轻人。',1.5],
+  ['你的贵人藏在你的"老本行"里,一个多年没联系的老同事/老同学,今年会重新出现。',1.5],
+  ['你的贵人在水边或南方城市,若有机会往那个方向走一趟,说不定就撞上转机。',1.5],
+  ['你的贵人是个"话糙理不糙"的人,忠言逆耳,能对你说真话的那个才是真帮你。',1.5],
+  ['你的贵人往往在你落魄时出现,记住那张脸——等你起来了,要记得回头谢人家。',1.5],
+  ['你的贵人其实就是你自己:少往外求,把自己练强,你就是自己最大的靠山。',2]
+];
+
+/* ══ 稀有度(结果分布,不是用户数据)══
+   身份是 CE.wpick 按上面那列权重抽的,所以某个身份的出现率 = 它的权重 / 总权重,
+   直接从权重算(不另存一张表,数字永远和权重同步)。
+   离线用 20 万个随机种子跑过同一套算法做校验:实测与理论最大偏差 0.075 个百分点。
+   稀有魂种(6 个)合计 5.2%,最稀的三个各 0.7%。 */
+const W_TOTAL=ROLES.reduce((p,x)=>p+x[1],0);
+const roleRate=r=>{const x=ROLES.find(y=>y[0]===r);return x?Math.round(x[1]/W_TOTAL*1000)/10:null;};
+const RARE_SOUL_RATE=Math.round(ROLES.filter(x=>x[0].rare).reduce((p,x)=>p+x[1],0)/W_TOTAL*1000)/10;
+const fmtP=p=>(p>0&&p<0.1)?'<0.1%':(Math.round(p*10)/10).toFixed(1)+'%';   // 极小概率别显示成 0.0%
+/* 结果页:在灵魂年龄下方补一行克制的稀有度提示(engine.js 渲染完再插入,不改引擎)*/
+function injectRarity(html){
+  const box=document.getElementById('ce-report');
+  const a=box.querySelector('.ce-score')||box.querySelector('.ce-sub')||box.querySelector('.ce-tag');
+  if(!a)return;
+  const d=document.createElement('div');d.className='ce-rare';d.innerHTML=html;
+  a.parentNode.insertBefore(d,a.nextSibling);
+}
+
+const cfg={ id:'qianshi', 名字:'前世今生', 图标:'🪷',
+  sections:[
+    {h:'📜 前世的故事', gen:(rng,ctx)=>ctx.role.tale+CE.pick(rng,STORY_END)},
+    {h:'🎁 你带到今生的天赋', pools:[TALENT]},
+    {h:'📿 今生要还的功课', pools:[LESSON]},
+    {h:'🧭 今生贵人方位', pools:[DIR]}
+  ]};
+
+$('go').onclick=()=>{
+  const nm=$('nm').value.trim();
+  if(!nm){$('err').textContent='先写下你的名字呀 🪷';return;}
+  $('err').textContent='';$('ce-stage').style.display='none';$('loading').style.display='block';
+  setTimeout(()=>{
+    const seed=nm+'|'+sex;
+    const rng=CE.rngFrom(seed);
+    const role=CE.wpick(rng,ROLES);
+    const key=sex==='女'?'f':sex==='不限'?'n':'m';
+    const ident=role[key];
+    const parts=CE.buildParts(cfg,rng,{role});
+    const dingxing=CE.pick(rng,DINGXING);
+    parts.unshift({h:'🪷 你的前世', p:'你的前世是「'+ident+'」。'+dingxing});
+    if(role.rare)parts.push({h:'✨ 灵魂印记', p:'你的前世属于「稀有魂种」:42 个身份里只有 6 个是稀有魂种,合起来只占 '+fmtP(RARE_SOUL_RATE)+' 的结果,你抽到的这个占 '+fmtP(roleRate(role))+'。这样的灵魂重回人间,多半带着一桩未了的使命。'});
+    const tag='【'+ident+'】';
+    const soul=role.rare?Math.round(4200+rng()*5600):Math.round(600+rng()*4200);
+    const dims=[
+      ['🕯️前世羁绊',Math.min(99,60+Math.round(rng()*39))],
+      ['🎁天赋承袭',Math.min(99,60+Math.round(rng()*39))],
+      ['🍀今生福报',Math.min(99,58+Math.round(rng()*41))],
+      ['🧭贵人助力',Math.min(99,60+Math.round(rng()*39))]];
+    const sub=nm+' · '+sex+' · 一缕旧魂归来';
+    const rate=roleRate(role);
+    const result={
+      heading:'你的前世今生', tag, sub,
+      big:soul, bigLabel:'灵魂年龄(岁)', dims, parts,
+      card:{kicker:'🪷 前世今生', title:tag, sub:nm+(rate?' · 此身份出现率 '+fmtP(rate):''),
+            big:soul, bigLabel:'灵魂年龄(岁)', dims, hook:dingxing},
+      shareText:'我的前世是「'+ident+'」!来测你的 👉 微信搜「Zion降噪」,回复「测测」拿全部'
+    };
+    $('loading').style.display='none';
+    CE.render(cfg, result);
+    if(rate)injectRarity(
+      (role.rare?'<span class="badge">稀有魂种</span>':'')+
+      '42 个前世身份里,「'+ident+'」的出现率 <b>'+fmtP(rate)+'</b>'+
+      (role.rare?'<br>稀有魂种一共 6 个,合起来只占 <b>'+fmtP(RARE_SOUL_RATE)+'</b> 的结果':'')+
+      '<span class="src">占比按身份权重算出 · 已用 20 万个随机种子离线校验 · 不含任何用户数据</span>');
+  },600);
+};
+</script>
+<script src="/wxtip.js" defer></script>
+</body>
+</html>

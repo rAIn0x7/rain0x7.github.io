@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Zion — Builder, Founder, AI Native. 用技术创造财富。每周一封深度信,写 AI、创业与财富的交汇点。">
+<title>Zion — Builder & Founder · 用技术创造财富</title>
+<link rel="canonical" href="https://qizh.space/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230a0908'/%3E%3Ctext x='50' y='72' font-size='62' font-family='Georgia,serif' font-weight='700' fill='%23c9a84c' text-anchor='middle'%3EZ%3C/text%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Zion · qizh.space">
+<meta property="og:title" content="Zion — Builder & Founder · 用技术创造财富">
+<meta property="og:description" content="Builder, Founder, AI Native。写 AI、创业与财富的交汇点,building in public。">
+<meta property="og:url" content="https://qizh.space/">
+<meta property="og:image" content="https://qizh.space/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Zion — Builder & Founder · 用技术创造财富">
+<meta name="twitter:description" content="Builder, Founder, AI Native。写 AI、创业与财富的交汇点,building in public。">
+<meta name="twitter:image" content="https://qizh.space/og-default.png">
+<meta name="keywords" content="Zion,齐子豪,Builder,Founder,AI Native,用技术创造财富,独立开发者,AI 创业,building in public,AI 工具">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"WebSite","@id":"https://qizh.space/#website","url":"https://qizh.space/","name":"Zion · qizh.space","description":"Builder, Founder, AI Native。写 AI、创业与财富的交汇点,building in public。","inLanguage":"zh-CN","datePublished":"2026-05-11","dateModified":"2026-07-27","author":{"@id":"https://qizh.space/#person"},"publisher":{"@id":"https://qizh.space/#person"}},
+{"@type":"Person","@id":"https://qizh.space/#person","name":"Zion","alternateName":"齐子豪","url":"https://qizh.space/","description":"Builder, Founder, AI Native。用技术创造财富,写 AI、创业与财富的交汇点。","jobTitle":"Builder & Founder","email":"mailto:1733680684@qq.com","sameAs":["https://github.com/rAIn0x7"],"knowsAbout":["AI","创业","独立开发","财富杠杆"],"mainEntityOfPage":{"@id":"https://qizh.space/#website"}}
+]}
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2184467660826262" crossorigin="anonymous"></script>
+<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/bebas-neue-400.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/dm-mono-300.woff2" crossorigin>
+<link rel="stylesheet" href="/assets/fonts/fonts.css">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --black:#0a0908; --gold:#c9a84c; --gold-lt:#f0d488; --amber:#d8a24a; --bronze:#7a5a26;
+  --white:#f5f1ea; --muted:#8a8378; --dim:#46423b; --border:rgba(201,168,76,.16);
+  --rust:#d98a5f; --sage:#9bb088; --slate:#9bb0c2;
+  --display:'Bebas Neue','PingFang SC','Microsoft YaHei',sans-serif; --serif:'Instrument Serif','Songti SC','SimSun',Georgia,serif; --body:'Outfit',-apple-system,'PingFang SC','Microsoft YaHei',sans-serif; --mono:'DM Mono','SFMono-Regular',Consolas,monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--black);color:var(--white);font-family:var(--body);font-weight:300;overflow-x:hidden;cursor:none;line-height:1.6}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1180px;margin:0 auto;padding:0 48px}
+
+/* backgrounds */
+.aurora{position:fixed;inset:0;z-index:-2;pointer-events:none;overflow:hidden}
+.aurora i{position:absolute;border-radius:50%;filter:blur(100px);opacity:.4;mix-blend-mode:screen}
+.aurora i:nth-child(1){width:44vw;height:44vw;left:-6vw;top:-10vw;background:radial-gradient(circle,rgba(216,162,74,.45),transparent 70%);animation:d1 28s ease-in-out infinite alternate}
+.aurora i:nth-child(2){width:38vw;height:38vw;right:-8vw;top:0;background:radial-gradient(circle,rgba(201,168,76,.3),transparent 70%);animation:d2 34s ease-in-out infinite alternate}
+@keyframes d1{to{transform:translate(12vw,8vw) scale(1.15)}}
+@keyframes d2{to{transform:translate(-10vw,6vw) scale(1.2)}}
+canvas#field{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.7}
+body::before{content:'';position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.45;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")}
+
+/* cursor */
+.cur{position:fixed;width:7px;height:7px;background:var(--gold-lt);border-radius:50%;z-index:9999;pointer-events:none;transform:translate(-50%,-50%);transition:width .25s,height .25s}
+.ring{position:fixed;width:34px;height:34px;border:1px solid rgba(201,168,76,.5);border-radius:50%;z-index:9998;pointer-events:none;transform:translate(-50%,-50%);transition:width .2s,height .2s,border-color .2s}
+body:has(.magnet:hover) .cur{width:12px;height:12px}
+body:has(.magnet:hover) .ring{width:60px;height:60px;border-color:var(--gold-lt)}
+.progress{position:fixed;top:0;left:0;height:2px;width:0;background:linear-gradient(90deg,var(--gold),var(--gold-lt));z-index:300;pointer-events:none;box-shadow:0 0 10px rgba(201,168,76,.5)}
+
+/* nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:20px 48px;backdrop-filter:blur(12px);background:rgba(10,9,8,.55);border-bottom:1px solid transparent;transition:border-color .3s,background .3s}
+nav.scrolled{border-color:var(--border);background:rgba(10,9,8,.82)}
+.logo{font-family:var(--display);font-size:25px;letter-spacing:.16em}
+.logo span{color:var(--gold)}
+.nav-links{display:flex;gap:34px;list-style:none}
+.nav-links a{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:lowercase;transition:color .2s}
+.nav-links a:hover{color:var(--white)}
+.nav-cta{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--gold);border:1px solid var(--border);padding:9px 18px;border-radius:99px;transition:.3s}
+.nav-cta:hover{background:var(--gold);color:var(--black)}
+.menu-btn{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:none;z-index:201;padding:11px;margin:-11px}
+.menu-btn span{display:block;width:22px;height:1px;background:var(--white);transition:.3s}
+.menu-btn.open span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.menu-btn.open span:nth-child(2){opacity:0}
+.menu-btn.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+.mnav{display:none;position:fixed;inset:0;background:rgba(10,9,8,.97);z-index:200;flex-direction:column;justify-content:center;align-items:center;gap:8px;backdrop-filter:blur(20px)}
+.mnav.open{display:flex}
+.mnav a{font-family:var(--display);font-size:clamp(36px,10vw,56px);letter-spacing:.06em;color:var(--white);padding:14px}
+.mnav a:hover{color:var(--gold)}
+
+/* hero */
+#hero{position:relative;z-index:2;min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:120px 24px 80px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.4em;color:var(--gold);text-transform:uppercase;opacity:0;animation:fi 1s .2s forwards}
+.title{font-family:var(--display);font-size:clamp(72px,16vw,260px);line-height:.84;letter-spacing:.02em;margin:18px 0}
+.title .line{display:block;color:var(--gold-lt);background:linear-gradient(100deg,#6b5a30,#f0d488 25%,#fff 38%,#f0d488 50%,#c9a84c 70%,#6b5a30);background-size:250% 100%;
+  opacity:0;transform:translateY(46px);transition:opacity .9s cubic-bezier(.2,.7,.3,1),transform .9s cubic-bezier(.2,.7,.3,1);animation:sheen 7s linear infinite}
+@supports ((-webkit-background-clip:text) or (background-clip:text)){.title .line{-webkit-background-clip:text;background-clip:text;color:transparent}}
+.title .line:nth-child(2){transition-delay:.12s}
+.title.in .line{opacity:1;transform:none}
+@keyframes sheen{to{background-position:250% 0}}
+@keyframes fi{to{opacity:1}}
+.tagline{font-family:var(--serif);font-style:italic;font-size:clamp(18px,2.4vw,28px);color:var(--gold-lt);opacity:0;animation:fi 1s 1s forwards}
+.sub{font-family:var(--mono);font-size:12px;letter-spacing:.16em;color:var(--muted);margin-top:14px;text-transform:uppercase;opacity:0;animation:fi 1s 1.2s forwards}
+.actions{display:flex;gap:16px;margin-top:42px;opacity:0;animation:fi 1s 1.4s forwards}
+.btn{font-family:var(--mono);font-size:13px;letter-spacing:.12em;padding:15px 30px;border-radius:99px;transition:transform .2s,box-shadow .3s,background .3s,color .3s}
+.btn-g{background:var(--gold);color:var(--black);font-weight:500}
+.btn-g:hover{box-shadow:0 0 40px rgba(201,168,76,.5)}
+.btn-o{border:1px solid var(--border);color:var(--white)}
+.btn-o:hover{border-color:var(--gold)}
+.stats{display:flex;gap:60px;margin-top:62px;opacity:0;animation:fi 1s 1.6s forwards}
+.stat .n{font-family:var(--display);font-size:50px;color:var(--gold);letter-spacing:.04em;line-height:1}
+.stat .k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--muted);margin-top:6px;text-transform:uppercase}
+/* 秒级分流:去玩什么 */
+.quick{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:40px;opacity:0;animation:fi 1s 1.75s forwards}
+.quick a{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--white);border:1px solid var(--border);border-radius:99px;padding:10px 18px;background:rgba(201,168,76,.03);transition:transform .2s,border-color .2s,box-shadow .2s,color .2s}
+.quick a:hover{transform:translateY(-2px);border-color:rgba(201,168,76,.5);color:var(--gold-lt);box-shadow:0 12px 26px -14px rgba(201,168,76,.6)}
+.quick a .qe{font-size:15px}
+.cue{position:absolute;bottom:34px;left:50%;transform:translateX(-50%);width:1px;height:52px;background:linear-gradient(var(--gold),transparent);animation:pl 2s infinite}
+@keyframes pl{0%,100%{opacity:.3}50%{opacity:1}}
+
+/* quote rotator */
+.quotes{position:relative;z-index:2;isolation:isolate;border-block:1px solid var(--border);background:rgba(201,168,76,.02);padding:48px 24px;text-align:center;min-height:184px;display:flex;flex-direction:column;justify-content:center}
+.q{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(820px,88%);opacity:0;pointer-events:none;transition:opacity .5s}
+.q.on{opacity:1}
+.q p{font-family:var(--serif);font-style:italic;font-size:clamp(22px,3vw,34px);line-height:1.35;color:var(--white)}
+.q cite{display:block;font-family:var(--mono);font-style:normal;font-size:11px;letter-spacing:.2em;color:var(--gold);text-transform:uppercase;margin-top:18px}
+
+/* statement */
+#statement{position:relative;z-index:2;min-height:78vh;display:flex;align-items:center;justify-content:center;padding:0 24px;text-align:center}
+.statement{font-family:var(--serif);font-style:italic;font-size:clamp(32px,5.6vw,80px);line-height:1.12;max-width:15ch}
+.statement b{font-style:normal;font-family:var(--display);font-weight:400;color:var(--gold)}
+.reveal{opacity:0;transform:translateY(40px);transition:opacity 1s cubic-bezier(.2,.7,.3,1),transform 1s cubic-bezier(.2,.7,.3,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* section header */
+.shead{display:flex;align-items:center;gap:16px;margin-bottom:54px}
+.snum{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--gold)}
+.stitle{font-family:var(--display);font-size:44px;letter-spacing:.05em}
+.sline{flex:1;height:1px;background:var(--border)}
+
+/* ventures */
+#ventures{position:relative;z-index:2;padding:60px 0 110px}
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.tile{position:relative;min-height:300px;border:1px solid var(--border);border-radius:8px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:30px;transition:transform .4s cubic-bezier(.2,.7,.3,1),border-color .4s}
+.tile::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 130%,rgba(201,168,76,.16),transparent 70%);opacity:.4;transition:opacity .4s}
+.tile:hover{transform:translateY(-8px);border-color:rgba(201,168,76,.45)}
+.tile:hover::before{opacity:1}
+.tile .num{position:absolute;top:22px;right:26px;font-family:var(--display);font-size:60px;color:transparent;-webkit-text-stroke:1px rgba(201,168,76,.18)}
+.tile .status{position:relative;display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:#4ade80;margin-bottom:14px}
+.tile .status .d{width:6px;height:6px;border-radius:50%;background:#4ade80;animation:pl 2s infinite}
+.tile .tag{position:relative;font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--gold);text-transform:uppercase;margin-bottom:10px}
+.tile h3{position:relative;font-family:var(--display);font-size:38px;letter-spacing:.04em}
+.tile h3 b{color:var(--gold)}
+.tile .desc{position:relative;font-size:13px;color:var(--muted);margin-top:12px;line-height:1.6}
+
+/* writing */
+#writing{position:relative;z-index:2;padding:0 0 110px}
+.wgrid{display:grid;grid-template-columns:1.5fr 1fr;gap:28px}
+.wfeat{border:1px solid var(--border);border-radius:8px;padding:42px;background:rgba(201,168,76,.02);transition:.3s;display:block}
+.wfeat:hover{border-color:rgba(201,168,76,.4);transform:translateY(-3px)}
+.chip{display:inline-block;padding:5px 12px;border-radius:99px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:20px}
+.chip.ai{background:rgba(155,176,194,.18);color:var(--slate)} .chip.wealth{background:rgba(201,168,76,.16);color:var(--gold-lt)}
+.chip.startup{background:rgba(217,138,95,.16);color:var(--rust)} .chip.mindset{background:rgba(155,176,136,.18);color:var(--sage)}
+.wfeat h3{font-family:var(--serif);font-size:30px;line-height:1.22;margin-bottom:14px}
+.wfeat p{font-size:14px;color:var(--muted);line-height:1.8;margin-bottom:24px}
+.wmeta{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--dim)}
+.wmeta .r{color:var(--gold)}
+.wlist{display:flex;flex-direction:column}
+.wli{padding:22px 0;border-bottom:1px solid var(--border);display:flex;flex-direction:column;align-items:flex-start;gap:8px;transition:.2s}
+.wli:first-child{border-top:1px solid var(--border)}
+.wli:hover{padding-left:8px}
+.wli h4{font-size:15px;font-weight:400;line-height:1.4}
+.wli .d{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.08em}
+
+/* subscribe */
+#subscribe{position:relative;z-index:2;padding:0 0 110px}
+.subcard{position:relative;border:1px solid var(--border);border-radius:18px;padding:72px 40px;text-align:center;background:radial-gradient(ellipse at 50% 0,rgba(201,168,76,.08),transparent 70%),rgba(201,168,76,.02);overflow:hidden}
+.subcard h2{font-family:var(--display);font-size:clamp(48px,7vw,92px);line-height:.9;letter-spacing:.03em;margin-bottom:18px}
+.subcard h2 em{font-family:var(--serif);font-style:italic;color:var(--gold)}
+.subcard .sd{font-size:15px;color:var(--muted);max-width:480px;margin:0 auto 12px;line-height:1.8}
+.subcard .soc{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--gold);margin-bottom:28px;text-transform:uppercase}
+.subform{display:flex;max-width:450px;margin:0 auto;border:1px solid var(--border);border-radius:99px;overflow:hidden;background:rgba(0,0,0,.3);transition:border-color .25s}
+.subform:focus-within{border-color:rgba(201,168,76,.5)}
+.subform input{flex:1;background:none;border:none;padding:15px 24px;color:var(--white);font-family:var(--body);outline:none}
+.subform button{background:var(--gold);color:var(--black);border:none;padding:0 30px;font-family:var(--mono);font-size:12px;letter-spacing:.1em;cursor:none;font-weight:500}
+.subok{display:none;font-family:var(--mono);font-size:13px;letter-spacing:.1em;color:#4ade80;margin-top:8px}
+.subok.show{display:block}
+/* 订阅区双轨:海外邮件 + 国内公众号/星球 */
+.subsplit{display:flex;align-items:center;gap:18px;max-width:450px;margin:26px auto 0;color:var(--dim);font-family:var(--mono);font-size:10px;letter-spacing:.18em}
+.subsplit::before,.subsplit::after{content:'';flex:1;height:1px;background:var(--border)}
+.cnsub{max-width:480px;margin:22px auto 0;border:1px solid var(--border);border-radius:14px;padding:20px 24px;background:rgba(201,168,76,.03)}
+.cnsub .ct{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--gold);text-transform:uppercase;margin-bottom:8px}
+.cnsub .cb{font-size:14px;color:var(--white);line-height:1.7}
+.cnsub .cb b{color:var(--gold-lt);font-weight:500}
+.cnsub .cd{font-size:12px;color:var(--muted);margin-top:6px}
+
+/* contact */
+#contact{position:relative;z-index:2;padding:0 0 100px;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start}
+.ctitle{font-family:var(--display);font-size:clamp(52px,8vw,92px);line-height:.95;letter-spacing:.03em;margin-bottom:22px}
+.ctitle span{color:var(--gold)}
+.csub{font-size:14px;color:var(--muted);line-height:1.8;margin-bottom:30px;max-width:360px}
+.clinks{display:flex;flex-direction:column}
+.clink{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--border);transition:.2s}
+.clink:first-child{border-top:1px solid var(--border)}
+.clink:hover{padding-left:8px}
+.cl{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:2px}
+.cv{font-size:14px}
+.cform{border:1px solid var(--border);border-radius:12px;padding:40px;background:rgba(201,168,76,.02)}
+.cform .lab{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--gold);margin-bottom:24px}
+.fg{margin-bottom:18px}
+.fg label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--muted);margin-bottom:8px;text-transform:uppercase}
+.fg input,.fg textarea,.fg select{width:100%;background:rgba(255,255,255,.03);border:1px solid var(--border);padding:12px 16px;color:var(--white);font-family:var(--body);font-size:14px;border-radius:6px;outline:none;transition:border-color .25s}
+.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:rgba(201,168,76,.5)}
+.fg textarea{height:90px;resize:none}.fg select option{background:#111}
+.csubmit{width:100%;background:var(--gold);color:var(--black);border:none;padding:15px;font-family:var(--mono);font-size:13px;letter-spacing:.12em;font-weight:500;cursor:none;border-radius:6px;transition:.25s}
+.csubmit:hover{background:var(--gold-lt)}
+.cok{display:none;flex-direction:column;align-items:center;text-align:center;padding:40px 20px;gap:12px}
+.cok.show{display:flex}.cok .ring2{width:60px;height:60px;border:1px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--gold)}
+.cok .t{font-family:var(--display);font-size:28px;letter-spacing:.08em}
+.cok .s{font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.8}
+
+footer{position:relative;z-index:2;border-top:1px solid var(--border);padding:30px 48px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--dim)}
+footer .fr{display:flex;gap:22px}
+footer a:hover{color:var(--gold)}
+
+@media(max-width:860px){
+  .wrap,nav,footer{padding-left:24px;padding-right:24px}
+  .nav-links,.nav-cta{display:none}.menu-btn{display:flex}
+  .tiles,.wgrid,#contact{grid-template-columns:1fr}.tile{height:auto;min-height:180px}
+  .stats{gap:30px}body{cursor:auto}.cur,.ring{display:none}
+  .menu-btn,.subform button,.csubmit,.btn,.nav-cta{cursor:pointer}
+  /* 移动端:订阅按钮竖排满宽不裁切;作品卡大数字缩小并给标题留安全区,不再撞字 */
+  .subform{flex-direction:column;border-radius:16px;gap:10px;padding:10px}
+  .subform input{width:100%;text-align:center}
+  .subform button{width:100%;padding:15px;border-radius:10px}
+  .tile{min-height:160px}
+  .tile .num{font-size:46px;top:16px;right:18px}
+  .tile h3{padding-right:50px}
+}
+@media(max-width:430px){
+  /* 小屏防折行毛刺:eyebrow 不折、两枚 hero 按钮等宽竖排、副标字距收紧 */
+  .eyebrow{letter-spacing:.22em;font-size:11px;white-space:nowrap}
+  .actions{flex-direction:column;width:100%;max-width:300px;margin-left:auto;margin-right:auto}
+  .btn{width:100%;text-align:center}
+  .subcard .soc{letter-spacing:.06em}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal,.title .line,.eyebrow,.tagline,.sub,.actions,.stats,.quick{opacity:1!important;transform:none!important}.title .line{color:var(--gold)}.q{opacity:1}}
+</style>
+</head>
+<body>
+<div class="aurora"><i></i><i></i></div>
+<canvas id="field"></canvas>
+<div class="cur" id="cur"></div><div class="ring" id="ring"></div>
+<div class="progress" id="progress"></div>
+
+<nav id="nav">
+  <a href="index.html" class="logo magnet">ZI<span>O</span>N</a>
+  <ul class="nav-links">
+    <li><a href="#ventures">ventures</a></li>
+    <li><a href="/ce/">测测</a></li>
+    <li><a href="/tool/">工具</a></li>
+    <li><a href="/prompt/">Prompt</a></li>
+    <li><a href="/join/">星球</a></li>
+    <li><a href="#writing">writing</a></li>
+    <li><a href="about.html">about</a></li>
+    <li><a href="#contact">contact</a></li>
+  </ul>
+  <a href="#subscribe" class="nav-cta magnet">SUBSCRIBE →</a>
+  <button class="menu-btn" id="menuBtn" aria-label="menu"><span></span><span></span><span></span></button>
+</nav>
+<div class="mnav" id="mnav">
+  <a href="#ventures" class="ml">VENTURES</a><a href="/ce/" class="ml">测测</a><a href="/tool/" class="ml">工具</a><a href="/prompt/" class="ml">Prompt</a><a href="/join/" class="ml">星球</a><a href="#writing" class="ml">WRITING</a>
+  <a href="about.html" class="ml">ABOUT</a><a href="#contact" class="ml">CONTACT</a><a href="#subscribe" class="ml">SUBSCRIBE</a>
+</div>
+
+<section id="hero">
+  <div class="eyebrow">Builder · Founder · AI Native</div>
+  <h1 class="title" id="title"><span class="line">BUILD</span><span class="line">WEALTH</span></h1>
+  <div class="tagline">through technology.</div>
+  <div class="sub">用技术创造财富 · building in public</div>
+  <div class="actions">
+    <a href="#subscribe" class="btn btn-g magnet">JOIN THE SIGNAL →</a>
+    <a href="#ventures" class="btn btn-o magnet">VENTURES</a>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="n" data-to="4">0</div><div class="k">Ventures</div></div>
+    <div class="stat"><div class="n" data-to="1700" data-suffix="+">0</div><div class="k">AI-Curated Articles</div></div>
+    <div class="stat"><div class="n">∞</div><div class="k">Possibilities</div></div>
+  </div>
+  <div class="quick" aria-label="快速入口">
+    <a href="/ce/" class="magnet"><span class="qe">🔮</span>测测矩阵</a>
+    <a href="/tool/" class="magnet"><span class="qe">🧰</span>工具箱</a>
+    <a href="/prompt/" class="magnet"><span class="qe">✨</span>Prompt 工坊</a>
+    <a href="/play/" class="magnet"><span class="qe">🕹️</span>玩一局</a>
+    <a href="/join/" class="magnet"><span class="qe">📡</span>加入星球</a>
+  </div>
+  <div class="cue"></div>
+</section>
+
+<div class="quotes" id="quotes">
+  <div class="q on"><p>"信息差在消失,注意力才是稀缺品。降噪,然后判断。"</p><cite>— Zion 降噪</cite></div>
+  <div class="q"><p>"低成本 = 高试错次数 = 更可能撞上对的那个。"</p><cite>— Zion 降噪</cite></div>
+  <div class="q"><p>"架构跟着收入长,别跟着野心长。"</p><cite>— Zion 降噪</cite></div>
+  <div class="q"><p>"一个人做产品,最缺的是第二双眼睛——所以我让 AI 来当。"</p><cite>— Zion 降噪</cite></div>
+</div>
+
+<section id="statement">
+  <p class="statement reveal">Every line of code is a <b>starting point</b> for wealth.</p>
+</section>
+
+<div class="wrap">
+  <section id="ventures">
+    <div class="shead reveal"><span class="snum">01</span><h2 class="stitle">VENTURES</h2><div class="sline"></div></div>
+    <div class="tiles">
+      <div class="tile reveal"><span class="num">01</span><div class="status"><span class="d"></span>ACTIVE · BUILDING</div><div class="tag">AI · Dev Tools · 2026</div><h3>Vibe<b>Coding</b></h3><div class="desc">面向 AI Native 开发者的创业项目。在 AI 加持下,任何人都能把想法变成真实产品。</div></div>
+      <a href="https://lens.qizh.space" target="_blank" rel="noopener" class="tile magnet reveal"><span class="num">02</span><div class="status"><span class="d"></span>LIVE</div><div class="tag">Crypto Intelligence</div><h3>Crypto<b>Lens</b></h3><div class="desc">实时聚合加密信号,AI 过滤噪音,每天省下 2 小时信息焦虑。</div></a>
+      <div class="tile reveal"><span class="num">03</span><div class="tag">Personal IP · Ongoing</div><h3>Personal<b> Brand</b></h3><div class="desc">记录创业、技术与财富思维,双语社区,打造可信个人 IP。</div></div>
+      <a href="/play/" target="_blank" rel="noopener" class="tile magnet reveal"><span class="num">04</span><div class="status"><span class="d"></span>PLAYABLE</div><div class="tag">Web Game · Phaser · 2026</div><h3>Finger<b>MOBA</b></h3><div class="desc">竖屏单手幸存者小游戏:怪潮、自动开火、升级三选一。纯 Web 秒开即玩,点开就玩。</div></a>
+    </div>
+  </section>
+
+  <section id="writing">
+    <div class="shead reveal"><span class="snum">02</span><h2 class="stitle">WRITING</h2><div class="sline"></div></div>
+    <div class="wgrid reveal">
+      <a href="post-why-vibe-coding-matters.html" class="wfeat magnet">
+        <span class="chip ai">FEATURED · AI</span>
+        <h3>为什么 Vibe Coding 是这个时代最重要的技能</h3>
+        <p>当 AI 把编程门槛降到接近零,真正稀缺的不再是技术能力,而是想象力、品味与执行力。这不是偷懒,是一种新的创造方式。</p>
+        <div class="wmeta"><span>MAY 2026 · 8 MIN READ</span><span class="r">READ →</span></div>
+      </a>
+      <div class="wlist">
+        <a href="post-ai-wealth-stack-leverage-2025.html" class="wli"><span class="chip wealth">WEALTH</span><h4>AI 财富栈:怎么用 AI 给自己装杠杆</h4><div class="d">APR 2026 · 6 MIN</div></a>
+        <a href="post-validate-startup-idea-in-30-days.html" class="wli"><span class="chip startup">STARTUP</span><h4>从 0 到 1:我如何在 30 天内验证一个创业想法</h4><div class="d">MAR 2026 · 5 MIN</div></a>
+        <a href="writing.html" class="wli"><span class="chip mindset">ARCHIVE</span><h4 style="color:var(--gold)">View all writing →</h4><div class="d">全部文章</div></a>
+      </div>
+    </div>
+  </section>
+
+  <section id="subscribe">
+    <div class="subcard reveal">
+      <h2>GET THE <em>signal</em></h2>
+      <p class="sd">深度分析——AI 趋势、创业逻辑、财富思维。不发噪音,只发值得你 10 分钟的内容。</p>
+      <p class="soc">Free · 随时退订 · Building in public</p>
+      <form class="subform" id="subForm" onsubmit="handleSubscribe(event)"><input type="text" name="company" id="hp_zion_sub" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute!important;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none"><input type="email" id="subEmail" placeholder="your@email.com" required><button class="magnet" type="submit">JOIN →</button></form>
+      <div class="subok" id="subOk">✓ You're on the list.</div>
+      <div class="subsplit">国内读者</div>
+      <div class="cnsub">
+        <div class="ct">📡 微信 · 每日一页纸精选</div>
+        <div class="cb">微信搜公众号 <b>「Zion降噪」</b>,回复 <b>「星球」</b>,进每日精选小圈子 <b>「降噪·静音舱」</b>。</div>
+        <div class="cd">AI 从几百条科技与宏观资讯里滤出的一页纸 + 我的点评。只讲认知与框架,不构成任何建议。</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="reveal">
+      <div class="shead"><span class="snum">03</span><h2 class="stitle">CONNECT</h2><div class="sline"></div></div>
+      <div class="ctitle">LET'S<br>BUILD<br><span>TOGETHER</span></div>
+      <p class="csub">在做 AI、SaaS 或有趣的创业项目?想聊技术与财富的交汇点?欢迎联系。</p>
+      <div class="clinks">
+        <a href="mailto:1733680684@qq.com" class="clink magnet"><div><div class="cl">Email</div><div class="cv">1733680684@qq.com</div></div><span>→</span></a>
+        <div class="clink"><div><div class="cl">WeChat 公众号</div><div class="cv">搜「Zion降噪」· 回复「星球」</div></div><span>📡</span></div>
+        <a href="https://github.com/rAIn0x7" target="_blank" rel="noopener" class="clink magnet"><div><div class="cl">GitHub</div><div class="cv">github.com/rAIn0x7</div></div><span>→</span></a>
+        <a href="writing.html" class="clink magnet"><div><div class="cl">Writing</div><div class="cv">qizh.space/writing</div></div><span>→</span></a>
+      </div>
+    </div>
+    <div class="cform reveal">
+      <div id="cFields">
+        <div class="lab">SEND A MESSAGE // 发消息</div>
+        <div class="fg"><label>Your Name / 姓名</label><input id="f-name" type="text" placeholder="How should I call you?"></div>
+        <div class="fg"><label>Email</label><input id="f-email" type="email" placeholder="your@email.com"></div>
+        <div class="fg"><label>About / 关于</label><select id="f-topic"><option>Collaboration / 合作</option><option>Investment / 投资</option><option>VibeCoding</option><option>Just to say hi / 打个招呼</option></select></div>
+        <div class="fg"><label>Message / 消息</label><textarea id="f-msg" placeholder="Tell me what's on your mind..."></textarea></div>
+        <button class="csubmit magnet" onclick="sendMessage()">SEND MESSAGE →</button>
+      </div>
+      <div class="cok" id="cOk"><div class="ring2">✓</div><div class="t">MESSAGE READY</div><div class="s">Your email client has been opened.<br>Looking forward to connecting.</div></div>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <span>© 2026 · qizh.space</span>
+  <div class="fr"><a href="#ventures">Ventures</a><a href="#writing">Writing</a><a href="about.html">About</a><a href="#contact">Contact</a><a href="privacy.html">Privacy</a></div>
+  <span>BUILT IN PUBLIC</span>
+</footer>
+
+<script>
+// cursor + magnetic
+const cur=document.getElementById('cur'),ring=document.getElementById('ring');
+let mx=innerWidth/2,my=innerHeight/2,rx=mx,ry=my;
+addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});
+(function loop(){cur.style.left=mx+'px';cur.style.top=my+'px';rx+=(mx-rx)*.18;ry+=(my-ry)*.18;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(loop)})();
+document.querySelectorAll('.magnet').forEach(el=>{
+  el.addEventListener('mousemove',e=>{const r=el.getBoundingClientRect();el.style.transform=`translate(${(e.clientX-r.left-r.width/2)*.2}px,${(e.clientY-r.top-r.height/2)*.3}px)`});
+  el.addEventListener('mouseleave',()=>{el.style.transform=''});
+});
+// particles — lighter on touch/mobile, paused on hidden tab, off for reduced-motion
+const cv=document.getElementById('field'),cx=cv.getContext('2d');let W,H,pts=[];const M={x:-999,y:-999};
+const REDUCE=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const COARSE=matchMedia('(pointer: coarse)').matches||innerWidth<=860;
+function size(){W=cv.width=innerWidth;H=cv.height=innerHeight;const cap=COARSE?40:90,den=COARSE?34000:19000;const n=Math.min(cap,Math.floor(W*H/den));pts=Array.from({length:n},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35}))}
+size();addEventListener('resize',size);if(!COARSE)addEventListener('mousemove',e=>{M.x=e.clientX;M.y=e.clientY});
+let raf=0;
+function frame(){cx.clearRect(0,0,W,H);
+  for(const p of pts){p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;
+    const dx=p.x-M.x,dy=p.y-M.y,d=Math.hypot(dx,dy);if(d<130){p.x+=dx/d*1.2;p.y+=dy/d*1.2}
+    cx.beginPath();cx.arc(p.x,p.y,1.3,0,7);cx.fillStyle='rgba(201,168,76,.55)';cx.fill()}
+  if(!COARSE)for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);
+    if(d<120){cx.beginPath();cx.moveTo(a.x,a.y);cx.lineTo(b.x,b.y);cx.strokeStyle='rgba(201,168,76,'+(.12*(1-d/120))+')';cx.stroke()}}
+  raf=requestAnimationFrame(frame)}
+function start(){if(!raf)raf=requestAnimationFrame(frame)}function stop(){if(raf){cancelAnimationFrame(raf);raf=0}}
+if(REDUCE){for(const p of pts){cx.beginPath();cx.arc(p.x,p.y,1.3,0,7);cx.fillStyle='rgba(201,168,76,.4)';cx.fill()}}
+else{start();document.addEventListener('visibilitychange',()=>document.hidden?stop():start())}
+// title reveal
+requestAnimationFrame(()=>document.getElementById('title').classList.add('in'));
+// count-up
+function countUp(el){const to=+el.dataset.to,suf=el.dataset.suffix||'';let s=null;(function step(ts){if(!s)s=ts;const p=Math.min((ts-s)/1200,1);el.textContent=Math.floor(p*to)+suf;if(p<1)requestAnimationFrame(step)})(performance.now())}
+// reveal + nav scroll + progress
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.15});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+const io2=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.querySelectorAll('[data-to]').forEach(countUp);io2.unobserve(e.target)}})},{threshold:.5});
+io2.observe(document.querySelector('.stats'));
+const nav=document.getElementById('nav'),pg=document.getElementById('progress');
+addEventListener('scroll',()=>{const st=scrollY,h=document.documentElement.scrollHeight-innerHeight;pg.style.width=(h>0?st/h*100:0)+'%';nav.classList.toggle('scrolled',st>40)},{passive:true});
+// quote rotator
+const qs=[...document.querySelectorAll('.q')];let qi=0;setInterval(()=>{qs[qi].classList.remove('on');qi=(qi+1)%qs.length;qs[qi].classList.add('on')},5200);
+// mobile nav
+const mb=document.getElementById('menuBtn'),mn=document.getElementById('mnav');
+mb.addEventListener('click',()=>{const o=mn.classList.toggle('open');mb.classList.toggle('open',o);document.body.style.overflow=o?'hidden':''});
+document.querySelectorAll('.ml').forEach(a=>a.addEventListener('click',()=>{mn.classList.remove('open');mb.classList.remove('open');document.body.style.overflow=''}));
+// subscribe → shared Supabase subscribers table (same backend as the Lens sites)
+const _subFormTs=Date.now(); // page-load time — used to reject implausibly fast (bot) submits
+function _showSubOk(){document.getElementById('subForm').style.display='none';document.getElementById('subOk').classList.add('show')}
+async function handleSubscribe(e){e.preventDefault();const v=document.getElementById('subEmail').value.trim();if(!v)return;
+  // anti-bot: honeypot filled, near-instant submit, or malformed email → pretend success, write nothing.
+  const hp=document.getElementById('hp_zion_sub');
+  const emailOk=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  if((hp&&hp.value)||(Date.now()-_subFormTs<2000)||!emailOk){_showSubOk();return}
+  try{await fetch('https://uzvguynixndzusrlqryo.supabase.co/rest/v1/subscribers',{method:'POST',
+    headers:{'apikey':'sb_publishable_tHr8G_hSTCG9kDYpC48_bg_CWjXpeLN','Content-Type':'application/json','Prefer':'return=minimal'},
+    body:JSON.stringify({email:v})})}catch(_){/* duplicate or offline — still show ok */}
+  _showSubOk()}
+// contact → mailto
+function sendMessage(){const n=document.getElementById('f-name').value.trim(),em=document.getElementById('f-email').value.trim(),tp=document.getElementById('f-topic').value,m=document.getElementById('f-msg').value.trim();
+  if(!m){const t=document.getElementById('f-msg');t.style.borderColor='rgba(255,80,80,.6)';t.focus();setTimeout(()=>t.style.borderColor='',1800);return}
+  location.href=`mailto:1733680684@qq.com?subject=${encodeURIComponent('['+tp+'] from '+(n||'visitor'))}&body=${encodeURIComponent('From: '+(n||'anon')+'\nEmail: '+(em||'n/a')+'\n\n'+m)}`;
+  document.getElementById('cFields').style.display='none';document.getElementById('cOk').classList.add('show')}
+</script>
+<script src="/wxtip.js" defer></script>
+</body>
+</html>

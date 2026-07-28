@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Zion 的文章 — AI、创业、财富与 vibe coding 的深度思考。">
+<title>Writing — Zion</title>
+<link rel="canonical" href="https://qizh.space/writing.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230a0908'/%3E%3Ctext x='50' y='72' font-size='62' font-family='Georgia,serif' font-weight='700' fill='%23c9a84c' text-anchor='middle'%3EZ%3C/text%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Zion · qizh.space">
+<meta property="og:title" content="Writing — Zion">
+<meta property="og:description" content="关于 AI、创业、财富与 vibe coding 的深度思考。">
+<meta property="og:url" content="https://qizh.space/writing.html">
+<meta property="og:image" content="https://qizh.space/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Writing — Zion">
+<meta name="twitter:description" content="关于 AI、创业、财富与 vibe coding 的深度思考。">
+<meta name="twitter:image" content="https://qizh.space/og-default.png">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2184467660826262" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="/assets/fonts/fonts.css">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--black:#0a0908;--gold:#c9a84c;--gold-lt:#f0d488;--white:#f5f1ea;--muted:#8a8378;--dim:#46423b;--border:rgba(201,168,76,.16);
+--rust:#d98a5f;--sage:#9bb088;--slate:#9bb0c2;
+--display:'Bebas Neue',sans-serif;--serif:'Instrument Serif','Songti SC','SimSun',serif;--body:'Outfit',system-ui,-apple-system,'PingFang SC','Microsoft YaHei','Hiragino Sans GB','Songti SC',sans-serif;--mono:'DM Mono',monospace;}
+html{scroll-behavior:smooth}
+body{background:var(--black);color:var(--white);font-family:var(--body);font-weight:300;line-height:1.7;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+a{color:inherit;text-decoration:none}
+.aurora{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.aurora i{position:absolute;width:46vw;height:46vw;right:-8vw;top:-12vw;border-radius:50%;filter:blur(110px);opacity:.26;background:radial-gradient(circle,rgba(216,162,74,.5),transparent 70%)}
+nav{position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:18px 24px;backdrop-filter:blur(12px);background:rgba(10,9,8,.82);border-bottom:1px solid var(--border)}
+.logo{font-family:var(--display);font-size:24px;letter-spacing:.16em}.logo span{color:var(--gold)}
+.nav-r{display:flex;gap:18px;align-items:center;flex-wrap:wrap;justify-content:flex-end;font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--muted)}
+.nav-r a{padding:10px 5px;transition:color .2s}
+.nav-r a:hover{color:var(--gold)}
+.nav-r a.here{color:var(--gold)}
+.head{max-width:1000px;margin:0 auto;padding:72px 32px 36px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;margin-bottom:18px}
+.head h1{font-family:var(--display);font-size:clamp(56px,10vw,120px);line-height:.9;letter-spacing:.03em;color:var(--white)}
+.head p{font-size:15px;color:var(--muted);margin-top:18px;max-width:480px;line-height:1.75}
+.grid{max-width:1000px;margin:0 auto;padding:20px 32px 90px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+/* 卡片质感与 ce.css 的 .ce-card 一致:暗金渐变底 + hover 抬升发光 */
+.ecard{position:relative;overflow:hidden;border:1px solid var(--border);border-radius:14px;padding:30px 26px;background:linear-gradient(165deg,#16130f,#100e0b);transition:transform .3s,border-color .3s,box-shadow .3s;display:flex;flex-direction:column}
+.ecard::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 80% at 50% -10%,rgba(201,168,76,.12),transparent 60%);opacity:0;transition:opacity .25s;pointer-events:none}
+.ecard:hover{transform:translateY(-4px);border-color:rgba(201,168,76,.45);box-shadow:0 18px 40px -18px rgba(201,168,76,.45)}
+.ecard:hover::before{opacity:1}
+.ecard>*{position:relative;z-index:1}
+.chip{display:inline-block;width:max-content;padding:5px 12px;border-radius:99px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:18px}
+.chip.ai{background:rgba(155,176,194,.18);color:var(--slate)}.chip.wealth{background:rgba(201,168,76,.16);color:var(--gold-lt)}
+.chip.startup{background:rgba(217,138,95,.16);color:var(--rust)}.chip.mindset{background:rgba(155,176,136,.18);color:var(--sage)}
+.ecard h3{font-family:var(--serif);font-size:26px;line-height:1.3;margin-bottom:12px;overflow-wrap:break-word}
+/* 摘要 14 → 15px:窄屏正文不低于 15px */
+.ecard p{font-size:15px;color:#bdb7ab;line-height:1.75;margin-bottom:22px;flex:1;overflow-wrap:break-word}
+/* --dim 在黑底上只有 2:1 对比,换 --muted → 5.3:1 */
+.emeta{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted)}
+.emeta .r{color:var(--gold)}
+footer{border-top:1px solid var(--border);padding:26px 24px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted)}
+footer a{display:inline-block;padding:11px 0;margin:-11px 0}
+footer a:hover{color:var(--gold)}
+@media(max-width:720px){.grid{grid-template-columns:1fr;padding:16px 22px 70px}.head{padding:52px 22px 28px}.ecard{padding:26px 22px}.ecard h3{font-size:23px}footer{justify-content:center;text-align:center;font-size:10.5px}}
+/* 窄屏 nav 精算(CJK=1em,DM Mono=.6em,Bebas 取 .55em 上界,letter-spacing 逐字累加):
+   5 项 + logo 在 pad18/gap10 下合计约 360px;.nav-r 另有 flex-wrap 兜底,任何情况都不会横向滚动 */
+@media(max-width:420px){nav{padding:14px 18px;gap:10px}.nav-r{gap:10px}}
+@media(min-width:1024px){
+  .nav-r{font-size:13px;color:#9d968a}
+  .head p{font-size:15.5px;color:#9d968a}
+  .head{padding:84px 32px 40px}
+  .ecard p{font-size:15.5px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="aurora"><i></i></div>
+<nav>
+  <a href="/" class="logo">ZI<span>O</span>N</a>
+  <div class="nav-r"><a href="/ce/">测测</a><a href="/tool/">工具</a><a href="/prompt/">Prompt</a><a href="/join/">星球</a><a href="/writing.html" class="here">文章</a></div>
+</nav>
+<div class="head">
+  <div class="eyebrow">— Essays · Building in public —</div>
+  <h1>WRITING</h1>
+  <p>关于 AI、创业、财富与 vibe coding 的深度思考。不发噪音。</p>
+</div>
+<div class="grid">
+    <a href="post-why-vibe-coding-matters.html" class="ecard">
+      <span class="chip ai">AI</span>
+      <h3>为什么 Vibe Coding 是这个时代最重要的技能</h3>
+      <p>当 AI 把写代码的门槛压到接近零,稀缺的不再是语法和算法,而是想象力、品味和判断。</p>
+      <div class="emeta"><span>MAY 2026 · 8 MIN READ</span><span class="r">READ →</span></div>
+    </a>
+    <a href="post-ai-wealth-stack-leverage-2025.html" class="ecard">
+      <span class="chip wealth">WEALTH</span>
+      <h3>AI 财富栈:怎么用 AI 给自己装杠杆</h3>
+      <p>财富不是靠努力换来的,是靠杠杆撬出来的。AI 把代码和媒体这两种零边际成本的杠杆,从公司级别打到了个人级别。</p>
+      <div class="emeta"><span>APR 2026 · 6 MIN READ</span><span class="r">READ →</span></div>
+    </a>
+    <a href="post-validate-startup-idea-in-30-days.html" class="ecard">
+      <span class="chip startup">STARTUP</span>
+      <h3>从 0 到 1:我如何在 30 天内验证一个创业想法</h3>
+      <p>别憋大招。我用一个 30 天流程,以最小成本最快速度验证需求——找痛点、做最小可用、丢给真实用户、看数据,然后决定继续还是杀掉。</p>
+      <div class="emeta"><span>MAR 2026 · 5 MIN READ</span><span class="r">READ →</span></div>
+    </a>
+</div>
+<footer>
+  <span>© 2026 · qizh.space</span>
+  <span><a href="index.html">Home</a> · <a href="about.html">About</a> · <a href="index.html#subscribe">Subscribe</a> · <a href="privacy.html">Privacy</a></span>
+</footer>
+</body>
+</html>

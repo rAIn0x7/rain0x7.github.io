@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>FingerMOBA · 单手竖屏幸存者小游戏,免费在线玩 — qizh.space</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%95%B9%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<meta name="description" content="FingerMOBA — 竖屏单手幸存者小游戏:怪潮、自动开火、升级三选一。纯 Web 秒开即玩。">
+<link rel="canonical" href="https://qizh.space/play/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Zion · qizh.space">
+<meta property="og:title" content="FingerMOBA">
+<meta property="og:description" content="FingerMOBA — 竖屏单手幸存者小游戏:怪潮、自动开火、升级三选一。纯 Web 秒开即玩。">
+<meta property="og:url" content="https://qizh.space/play/">
+<meta property="og:image" content="https://qizh.space/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="FingerMOBA">
+<meta name="twitter:description" content="FingerMOBA — 竖屏单手幸存者小游戏:怪潮、自动开火、升级三选一。纯 Web 秒开即玩。">
+<meta name="twitter:image" content="https://qizh.space/og-default.png">
+<meta name="keywords" content="FingerMOBA,幸存者游戏,单手小游戏,竖屏游戏,网页游戏,免费小游戏,在线小游戏,H5 游戏">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"VideoGame","name":"FingerMOBA","url":"https://qizh.space/play/","description":"竖屏单手幸存者小游戏:怪潮、自动开火、升级三选一。纯 Web 秒开即玩。","genre":["幸存者","Roguelite","休闲"],"gamePlatform":"Web","applicationCategory":"GameApplication","operatingSystem":"Web","inLanguage":"zh-CN","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"publisher":{"@type":"Person","name":"Zion","url":"https://qizh.space/"}}
+</script>
+
+<style>
+  html,body{margin:0;height:100%;background:#0b1020;overflow:hidden;
+    font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;-webkit-tap-highlight-color:transparent;touch-action:none}
+  #game{width:100vw;height:100vh}
+  /* 载入屏:Zion 金黑品牌质感 */
+  #boot{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:5;
+    background:radial-gradient(ellipse at 50% 30%,#141210,#0a0908 70%)}
+  #boot::before{content:"";position:absolute;top:18%;left:50%;transform:translateX(-50%);width:70vw;max-width:520px;height:40vh;
+    background:radial-gradient(ellipse at center,rgba(201,168,76,.16),transparent 70%);pointer-events:none}
+  .bcard{position:relative;display:flex;flex-direction:column;align-items:center;gap:16px}
+  .btitle{font-size:34px;font-weight:800;letter-spacing:.14em;
+    background:linear-gradient(180deg,#fbe6b4,#f0d488 45%,#c9a84c);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:#f0d488;
+    filter:drop-shadow(0 3px 16px rgba(201,168,76,.35))}
+  .bsub{font-size:12px;color:#8a8378;letter-spacing:.16em;margin-top:-6px}
+  .btrack{width:210px;height:8px;background:rgba(201,168,76,.14);border-radius:99px;overflow:hidden}
+  #bfill{height:100%;width:0;background:linear-gradient(90deg,#c9a84c,#f0d488);transition:width .15s ease}
+  #bpct{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12.5px;color:#c9a84c;letter-spacing:.12em}
+</style>
+</head>
+<body>
+<a href="/" style="position:fixed;top:10px;left:12px;z-index:10;font:600 13px/1 -apple-system,'PingFang SC','Microsoft YaHei',sans-serif;color:#f0d488;background:rgba(10,9,8,.6);border:1px solid rgba(201,168,76,.3);padding:8px 13px;border-radius:99px;text-decoration:none;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)">← Zion · 主站</a>
+<div id="boot">
+  <div class="bcard">
+    <div class="btitle">FINGER MOBA</div>
+    <div class="bsub">单手幸存</div>
+    <div class="btrack"><div id="bfill"></div></div>
+    <div id="bpct">载入中… 0%</div>
+  </div>
+</div>
+<div id="game"></div>
+<script>
+// 带真实进度的加载器:流式 fetch Phaser(国内 CDN 优先,失败回退本站自托管,再失败用 <script> 兜底),
+// 进度条按下载字节走;Phaser 就绪后再加载 game.js。
+(function () {
+  var CDN = 'https://cdn.staticfile.org/phaser/3.80.1/phaser.min.js';
+  var LOCAL = 'vendor/phaser.min.js';
+  var SIZE = 1181917; // 已知大小,content-length 缺失时作分母
+  var fill = document.getElementById('bfill'), pct = document.getElementById('bpct');
+  function setp(p) { p = Math.max(0, Math.min(100, p)); if (fill) fill.style.width = p + '%'; if (pct) pct.textContent = '载入中… ' + p + '%'; }
+  function loadGame() { var g = document.createElement('script'); g.src = 'game.js'; document.body.appendChild(g); }
+  function inject(code) { try { var s = document.createElement('script'); s.text = code; document.head.appendChild(s); } catch (e) {} loadGame(); }
+  function streamLoad(url, onFail) {
+    fetch(url).then(function (res) {
+      if (!res.ok || !res.body) throw 0;
+      var total = +(res.headers.get('content-length')) || SIZE, recv = 0, chunks = [], reader = res.body.getReader();
+      (function pump() {
+        reader.read().then(function (r) {
+          if (r.done) { setp(100); new Blob(chunks).text().then(inject); return; }
+          chunks.push(r.value); recv += r.value.length; setp(Math.round(recv / total * 98)); pump();
+        }).catch(function () { onFail && onFail(); });
+      })();
+    }).catch(function () { onFail && onFail(); });
+  }
+  streamLoad(CDN, function () {                 // 国内 CDN 失败 → 本站自托管(仍带进度)
+    streamLoad(LOCAL, function () {             // 都失败 → 普通 <script> 兜底
+      var s = document.createElement('script'); s.src = LOCAL; s.onload = loadGame; s.onerror = loadGame; document.head.appendChild(s);
+    });
+  });
+})();
+</script>
+</body>
+</html>
