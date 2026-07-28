@@ -1,0 +1,45 @@
+name: Sync from Zion-site
+
+# 微信封了 qizh.space,但 rain0x7.github.io 在微信里能正常打开(2026-07-28 实测)。
+# 这个仓库是 qizh.space 的镜像,专门服务微信内的用户。
+# 内容自动从源仓库同步,不要手工改这里的文件——改动会在下次同步时被覆盖。
+on:
+  schedule:
+    - cron: '17 */2 * * *'      # 每 2 小时
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mirror-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 拉取源站
+        run: git clone --depth 1 https://github.com/rAIn0x7/Zion-site.git _src
+
+      - name: 同步(排除 CNAME 和源站 workflow)
+        run: |
+          # 清掉上一次的镜像内容,保留仓库自身的 .git / .github / README
+          find . -maxdepth 1 ! -name '.' ! -name '.git' ! -name '.github' \
+                 ! -name '_src' ! -name 'README.md' -exec rm -rf {} +
+          # CNAME 必须排除:带上它镜像会声称自己是 qizh.space,Pages 会冲突
+          # .github 必须排除:否则源站的 workflow 会在这个仓库里重复跑
+          rsync -a --exclude='.git' --exclude='.github' --exclude='CNAME' _src/ ./
+          rm -rf _src
+          echo "自动镜像 · 源站 https://qizh.space · 请勿手工修改" > MIRROR.txt
+
+      - name: 提交
+        run: |
+          git config user.name  "mirror-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git diff --quiet --cached && echo "无变化,跳过" && exit 0
+          git commit -m "sync from Zion-site @ $(date -u '+%Y-%m-%d %H:%M UTC')"
+          git push
