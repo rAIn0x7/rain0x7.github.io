@@ -31,7 +31,20 @@ jobs:
                  ! -name '_src' ! -name 'README.md' -exec rm -rf {} +
           # CNAME 必须排除:带上它镜像会声称自己是 qizh.space,Pages 会冲突
           # .github 必须排除:否则源站的 workflow 会在这个仓库里重复跑
-          rsync -a --exclude='.git' --exclude='.github' --exclude='CNAME' _src/ ./
+          # 排除说明:
+          #  CNAME          带上它镜像会声称自己是 qizh.space,和主站抢域名
+          #  .github        否则源站 workflow 会在这个仓库里重复跑
+          #  CLAUDE.md/docs 内部文档,没必要对外
+          #  *.txt(两个)   微信域名校验 + IndexNow key,都只对主站有效
+          #  ads.txt        AdSense 归属主站
+          rsync -a --delete-excluded \
+                --exclude='.git' --exclude='.github' --exclude='CNAME' \
+                --exclude='CLAUDE.md' --exclude='docs' \
+                --exclude='.playwright-mcp' --exclude='.idea' --exclude='.vscode' \
+                --exclude='631943ee3cf203147deaa4c10653d5ce.txt' \
+                --exclude='973da565399014fa1436e6d5bc8b7ede.txt' \
+                --exclude='ads.txt' \
+                _src/ ./
           rm -rf _src
           echo "自动镜像 · 源站 https://qizh.space · 请勿手工修改" > MIRROR.txt
 
