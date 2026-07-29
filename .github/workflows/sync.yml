@@ -39,7 +39,10 @@ jobs:
           #  CLAUDE.md/docs 内部文档,没必要对外
           #  *.txt(两个)   微信域名校验 + IndexNow key,都只对主站有效
           #  ads.txt        AdSense 归属主站
-          rsync -a --delete-excluded \
+          # 不要用 --delete-excluded:它的语义是"删掉目标里被 exclude 的东西",
+          # 而我们 exclude 了 .git/.github —— 那正是要保护的,用了会把仓库自己的 .git 删掉
+          # (报错 fatal: not in a git directory)。目标目录的干净由上面的 find 保证。
+          rsync -a \
                 --exclude='.git' --exclude='.github' --exclude='CNAME' \
                 --exclude='CLAUDE.md' --exclude='docs' \
                 --exclude='.playwright-mcp' --exclude='.idea' --exclude='.vscode' \
