@@ -7,6 +7,25 @@ window.CE = (function () {
   const API = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
   const GLM_KEY = 'a3627c50241e4ba89fc4f56193b9c724.ADj57yFSiiLajwRC'; // 复用;仅"生成型"工具(起名)用
   const JOIN_URL = 'https://t.zsxq.com/hGab6';                          // 知识星球(微信内多半打不开→靠扫码/复制到浏览器)
+  /* 微信内可达的镜像:主站 qizh.space 被微信拦了(链接和指向它的码都打不开),
+     镜像由 Actions 每 2 小时从主站同步,路径与主站逐字一致 → 分享卡上的码/文本战报里的链接都走它。 */
+  const WX_HOST  = 'https://rain0x7.github.io';
+
+  /* ── 事件度量:实现在 /assets/track.js(唯一真源,非 ce 页也引它)──
+     这里只做异步加载 + 排队。度量永远不阻塞、不报错、不影响工具本身;
+     采集什么/不采集什么见 track.js 顶部那段隐私说明。 */
+  (function(){ try{
+    if(window.ZT&&window.ZT.track)return;
+    if(!window.ZT_Q)window.ZT_Q=[];
+    const s=document.createElement('script');s.src='/assets/track.js';s.async=true;
+    (document.head||document.documentElement).appendChild(s);
+  }catch(e){} })();
+  function track(name,tool,meta){ try{
+    if(window.ZT&&window.ZT.track)return window.ZT.track(name,tool,meta);
+    if(window.ZT_Q)window.ZT_Q.push([name,tool,meta]);          // track.js 还没到 → 先排队,加载完补发
+  }catch(e){} }
+  /* 结果档位 → 4 档标签(只是粗档,不含任何输入内容) */
+  function _tierTag(v){const n=_tierVal(v);if(n==null)return null;return n<0.3?'low':n<0.55?'mid':n<0.8?'high':'max';}
 
   /* ── 分享卡字体族(拉丁走自托管 woff2;中文不再远程加载 Noto Serif SC → 显式回退到系统衬线,
         保证任何设备上中文都有骨力、无豆腐块;拉丁数字/大标题用 Bebas,标签用 DM Mono)── */
@@ -44,9 +63,9 @@ window.CE = (function () {
     const rng = rngFrom((curId||'x')+'|more');                 // 同工具稳定、跨工具各异
     for(let i=others.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));const t=others[i];others[i]=others[j];others[j]=t;}
     const cards = others.slice(0,3).map(t=>
-      `<a class="ce-more-c" href="${t.url}"><span class="ce-more-i">${t.icon}</span><span class="ce-more-tx"><b>${t.name}</b><i>${t.hook}</i></span><span class="ce-more-go">→</span></a>`
+      `<a class="ce-more-c" href="${t.url}" data-t="${t.id}"><span class="ce-more-i">${t.icon}</span><span class="ce-more-tx"><b>${t.name}</b><i>${t.hook}</i></span><span class="ce-more-go">→</span></a>`
     ).join('');
-    return `<div class="ce-more"><div class="ce-more-hd">🔥 测完这个,顺手再测 →</div><div class="ce-more-row">${cards}</div><a class="ce-more-all" href="/ce/">查看全部 ${TOOLS.length} 个测试 →</a></div>`;
+    return `<div class="ce-more"><div class="ce-more-hd">🔥 测完这个,顺手再测 →</div><div class="ce-more-row">${cards}</div><a class="ce-more-all" href="/ce/" data-t="all">查看全部 ${TOOLS.length} 个测试 →</a></div>`;
   }
 
   /* ── 种子 & 随机(同输入同结果,跨输入不同)── */
@@ -88,8 +107,161 @@ window.CE = (function () {
     }catch(e){return null;}finally{clearTimeout(tm);}
   }
 
-  /* ── 分享卡(canvas 竖版海报,底部画公众号/星球码)── */
-  let _wxqr; function loadWxQR(){return new Promise(r=>{if(_wxqr!==undefined)return r(_wxqr);const im=new Image();im.onload=()=>{_wxqr=im;r(im);};im.onerror=()=>{_wxqr=null;r(null);};im.src='/wechat-qr.png';});}
+  /* ── 分享卡(canvas 竖版海报,底部画"工具码 + 公众号码 + 星球码")── */
+  function _loadImg(src,cache,key){return new Promise(r=>{if(cache[key]!==undefined)return r(cache[key]);
+    const im=new Image();im.onload=()=>{cache[key]=im;r(im);};im.onerror=()=>{cache[key]=null;r(null);};im.src=src;});}
+  const _imgCache={};
+  function loadWxQR(){return _loadImg('/wechat-qr.png',_imgCache,'wx');}
+  function loadPlanetQR(){return _loadImg('/planet-qr.png',_imgCache,'planet');}
+
+  /* ── 工具在镜像上的地址(微信里可点开、二维码能识别)。未知 id → 回落到测测矩阵首页,永远不返回死链。 */
+  function wxUrl(toolId){
+    const t=TOOLS.filter(function(x){return x.id===toolId;})[0];
+    return WX_HOST+(t?t.url:'/ce/');
+  }
+
+  /* ═══ 精简 QR 编码器(byte 模式 · 纠错级 M · 版本 1~6,≤106 字节;纯 JS,零依赖零外链)═══
+     只为一件事服务:把"当前工具的镜像地址"画到分享卡上,让收到卡的人长按识别就能直接进来玩。
+     标准流程:UTF-8 → 位流(模式+字数+数据+填充) → RS 纠错 → 分块交织 → 矩阵(定位/校正/定时/暗模块)
+              → 8 种掩码全试取罚分最低 → 写格式信息(BCH(15,5) ^ 0x5412)。 */
+  const _QRT ={1:[26,10,1],2:[44,16,1],3:[70,26,1],4:[100,18,2],5:[134,24,2],6:[172,16,4]}; // 版本:[总码字, 每块纠错码字, 块数]
+  const _QRAL={1:[],2:[6,18],3:[6,22],4:[6,26],5:[6,30],6:[6,34]};                          // 校正图案中心坐标
+  let _GE,_GL;
+  function _gfInit(){ if(_GE)return; _GE=new Array(512);_GL=new Array(256);
+    let x=1; for(let i=0;i<255;i++){_GE[i]=x;_GL[x]=i;x<<=1;if(x&256)x^=0x11d;}   // GF(256),本原多项式 0x11d
+    for(let i=255;i<512;i++)_GE[i]=_GE[i-255]; }
+  function _gmul(a,b){ if(!a||!b)return 0; return _GE[_GL[a]+_GL[b]]; }
+  function _rsGen(n){ _gfInit(); let p=[1];                                        // 生成多项式 ∏(x-α^i),高次在前
+    for(let i=0;i<n;i++){const q=new Array(p.length+1).fill(0);
+      for(let j=0;j<p.length;j++){q[j]^=p[j];q[j+1]^=_gmul(p[j],_GE[i]);}p=q;}
+    return p; }
+  function _rsEnc(data,n){ const g=_rsGen(n),r=new Array(n).fill(0);
+    for(let k=0;k<data.length;k++){const f=data[k]^r[0];r.shift();r.push(0);
+      if(f)for(let i=0;i<n;i++)r[i]^=_gmul(g[i+1],f);}
+    return r; }
+  function _utf8(s){ const o=[];
+    for(const ch of String(s)){const c=ch.codePointAt(0);
+      if(c<0x80)o.push(c);
+      else if(c<0x800)o.push(0xc0|c>>6,0x80|c&63);
+      else if(c<0x10000)o.push(0xe0|c>>12,0x80|c>>6&63,0x80|c&63);
+      else o.push(0xf0|c>>18,0x80|c>>12&63,0x80|c>>6&63,0x80|c&63);}
+    return o; }
+  function _maskBit(k,r,c){switch(k){                                              // r=行(y) c=列(x)
+    case 0: return (r+c)%2===0;
+    case 1: return r%2===0;
+    case 2: return c%3===0;
+    case 3: return (r+c)%3===0;
+    case 4: return (Math.floor(r/2)+Math.floor(c/3))%2===0;
+    case 5: return (r*c)%2+(r*c)%3===0;
+    case 6: return ((r*c)%2+(r*c)%3)%2===0;
+    default:return ((r+c)%2+(r*c)%3)%2===0;}}
+  function _qrFmt(m,n,mask){                                                       // 格式信息(M 级 formatBits=0),两份互备
+    const d=mask; let rem=d; for(let i=0;i<10;i++)rem=(rem<<1)^((rem>>>9)*0x537);
+    const bits=((d<<10|rem)^0x5412)&0x7fff, gb=i=>(bits>>i)&1;
+    for(let i=0;i<=5;i++)m[i*n+8]=gb(i);
+    m[7*n+8]=gb(6); m[8*n+8]=gb(7); m[8*n+7]=gb(8);
+    for(let i=9;i<15;i++)m[8*n+(14-i)]=gb(i);
+    for(let i=0;i<8;i++)m[8*n+(n-1-i)]=gb(i);
+    for(let i=8;i<15;i++)m[(n-15+i)*n+8]=gb(i);
+    m[(n-8)*n+8]=1;                                                               // 固定暗模块
+  }
+  function _qrPenalty(m,n){                                                        // 标准四条罚分规则,用于挑掩码
+    const g=(r,c)=>m[r*n+c]; let p=0;
+    for(let r=0;r<n;r++){let run=1;for(let c=1;c<n;c++){if(g(r,c)===g(r,c-1))run++;else{if(run>=5)p+=3+run-5;run=1;}}if(run>=5)p+=3+run-5;}
+    for(let c=0;c<n;c++){let run=1;for(let r=1;r<n;r++){if(g(r,c)===g(r-1,c))run++;else{if(run>=5)p+=3+run-5;run=1;}}if(run>=5)p+=3+run-5;}
+    for(let r=0;r<n-1;r++)for(let c=0;c<n-1;c++){const v=g(r,c);if(v===g(r,c+1)&&v===g(r+1,c)&&v===g(r+1,c+1))p+=3;}
+    const P1=[1,0,1,1,1,0,1,0,0,0,0],P2=[0,0,0,0,1,0,1,1,1,0,1];
+    const scan=get=>{let s=0;for(let i=0;i+11<=n;i++){let a=true,b=true;
+      for(let j=0;j<11;j++){const v=get(i+j);if(v!==P1[j])a=false;if(v!==P2[j])b=false;}
+      if(a)s+=40;if(b)s+=40;}return s;};
+    for(let r=0;r<n;r++)p+=scan(i=>g(r,i));
+    for(let c=0;c<n;c++)p+=scan(i=>g(i,c));
+    let dark=0;for(let i=0;i<n*n;i++)dark+=m[i];
+    p+=Math.floor(Math.abs(dark*100/(n*n)-50)/5)*10;
+    return p;
+  }
+  /* 返回 {n:边长, m:Uint8Array(n*n) 0/1, v:版本, mask:掩码};放不下或异常 → null(调用方降级为不画这个码)*/
+  const _qrMemo={};
+  function qrEncode(str,forceMask){
+    const ck=forceMask==null?String(str):null;
+    if(ck!==null&&_qrMemo[ck]!==undefined)return _qrMemo[ck];          // 一张卡画两个比例 → 别重复编码
+    const out=_qrEncode1(str,forceMask);
+    if(ck!==null)_qrMemo[ck]=out;
+    return out;
+  }
+  function _qrEncode1(str,forceMask){
+    try{
+      const by=_utf8(str); let v=0,T=null;
+      for(let i=1;i<=6;i++){const t=_QRT[i];if(by.length+2<=t[0]-t[1]*t[2]){v=i;T=t;break;}}
+      if(!v)return null;                                                           // >106 字节:本编码器不支持,宁可不画也不画个扫不出的
+      const total=T[0],ecc=T[1],nb=T[2],dataCw=total-ecc*nb;
+      /* ① 位流 */
+      const bits=[],push=(val,len)=>{for(let i=len-1;i>=0;i--)bits.push(val>>i&1);};
+      push(4,4);push(by.length,8);by.forEach(b=>push(b,8));                        // 模式 0100 + 字数(v1~9 byte 模式 8 bit)
+      for(let i=0;i<4&&bits.length<dataCw*8;i++)bits.push(0);                      // 终止符
+      while(bits.length%8)bits.push(0);
+      const cw=[];for(let i=0;i<bits.length;i+=8){let b=0;for(let j=0;j<8;j++)b=b<<1|bits[i+j];cw.push(b);}
+      for(let i=0;cw.length<dataCw;i++)cw.push(i%2?0x11:0xEC);                     // 填充码字 EC 11 交替
+      /* ② 分块 + RS + 交织 */
+      const per=dataCw/nb,ds=[],es=[];
+      for(let i=0;i<nb;i++){const d=cw.slice(i*per,(i+1)*per);ds.push(d);es.push(_rsEnc(d,ecc));}
+      const seq=[];
+      for(let i=0;i<per;i++)for(let b=0;b<nb;b++)seq.push(ds[b][i]);
+      for(let i=0;i<ecc;i++)for(let b=0;b<nb;b++)seq.push(es[b][i]);
+      /* ③ 矩阵骨架(功能模块 fnm 标记,数据填充时跳过)*/
+      const n=17+4*v,m=new Uint8Array(n*n),fnm=new Uint8Array(n*n);
+      const put=(r,c,val)=>{if(r>=0&&c>=0&&r<n&&c<n){m[r*n+c]=val;fnm[r*n+c]=1;}};
+      const fin=(r0,c0)=>{for(let i=-1;i<=7;i++)for(let j=-1;j<=7;j++){
+        const on=(i>=0&&i<=6&&(j===0||j===6))||(j>=0&&j<=6&&(i===0||i===6))||(i>=2&&i<=4&&j>=2&&j<=4);
+        put(r0+i,c0+j,on?1:0);}};                                                  // 定位图案 + 分隔符
+      fin(0,0);fin(0,n-7);fin(n-7,0);
+      for(let i=8;i<n-8;i++){const b=i%2?0:1;put(6,i,b);put(i,6,b);}               // 定时图案
+      const al=_QRAL[v],aLast=al[al.length-1];
+      for(const r of al)for(const c of al){
+        if((r===6&&c===6)||(r===6&&c===aLast)||(r===aLast&&c===6))continue;         // 与定位图案重叠的三处不画
+        for(let i=-2;i<=2;i++)for(let j=-2;j<=2;j++)put(r+i,c+j,Math.max(Math.abs(i),Math.abs(j))===1?0:1);}
+      for(let i=0;i<=8;i++){if(i!==6){put(i,8,0);put(8,i,0);}}                     // 格式信息区先占位(跳过定时模块)
+      for(let i=0;i<8;i++){put(8,n-1-i,0);put(n-1-i,8,0);}
+      /* ④ 数据位:两列一组、上下折返的锯齿序 */
+      let bi=0;const nbits=seq.length*8;
+      for(let right=n-1;right>=1;right-=2){
+        if(right===6)right=5;                                                      // 第 6 列是定时图案,整列跳过
+        for(let vert=0;vert<n;vert++)for(let j=0;j<2;j++){
+          const c=right-j,up=((right+1)&2)===0,r=up?n-1-vert:vert;
+          if(!fnm[r*n+c]&&bi<nbits){m[r*n+c]=(seq[bi>>3]>>(7-(bi&7)))&1;bi++;}
+        }
+      }
+      /* ⑤ 掩码:8 种全试(含格式信息),取罚分最低 */
+      let bestS=Infinity,bestK=0,bestM=null;
+      const ks=(forceMask!=null)?[forceMask&7]:[0,1,2,3,4,5,6,7];
+      for(const k of ks){
+        const t=Uint8Array.from(m);
+        for(let r=0;r<n;r++)for(let c=0;c<n;c++){if(!fnm[r*n+c]&&_maskBit(k,r,c))t[r*n+c]^=1;}
+        _qrFmt(t,n,k);
+        const s=(ks.length===1)?0:_qrPenalty(t,n);
+        if(s<bestS||bestM===null){bestS=s;bestK=k;bestM=t;}
+      }
+      return {n:n,m:bestM,v:v,mask:bestK};
+    }catch(e){return null;}
+  }
+  /* 把 URL 画成二维码:切到设备像素 + 模块尺寸取整 → 边缘绝不发虚(截图后照样扫得出)。含 4 模块静区。
+     px/py/size 是逻辑坐标,S 是画布缩放倍数。返回是否画成功。 */
+  function drawQRCode(x,str,px,py,size,S){
+    return _qrPaint(x,qrEncode(str),px,py,size,S);
+  }
+  function _qrPaint(x,q,px,py,size,S){
+    if(!q)return false;
+    const tot=q.n+8,mod=Math.max(1,Math.floor(size*S/tot)),side=mod*tot;
+    x.save();
+    try{
+      x.setTransform(1,0,0,1,0,0);                                                 // 设备像素坐标系:整数对齐
+      const ox=Math.round(px*S+(size*S-side)/2),oy=Math.round(py*S+(size*S-side)/2);
+      x.fillStyle='#fff';x.fillRect(ox,oy,side,side);
+      x.fillStyle='#000';
+      for(let r=0;r<q.n;r++)for(let c=0;c<q.n;c++)if(q.m[r*q.n+c])x.fillRect(ox+(c+4)*mod,oy+(r+4)*mod,mod,mod);
+    }catch(e){x.restore();return false;}
+    x.restore();return true;
+  }
   /* 预热分享卡要用到的自托管拉丁字体(Bebas/Outfit/DM Mono),避免首张分享卡数字/标签回退成默认字体 */
   let _warmed;
   function _warmFonts(){
@@ -109,6 +281,32 @@ window.CE = (function () {
   /* 色块上文字亮/暗自适应(按感知明度;colorcard 用)*/
   function _lum(hex){hex=String(hex||'').replace('#','');if(hex.length<6)return 1;const r=parseInt(hex.slice(0,2),16),g=parseInt(hex.slice(2,4),16),b=parseInt(hex.slice(4,6),16);if(isNaN(r+g+b))return 1;return (0.299*r+0.587*g+0.114*b)/255;}
   function _txtOn(hex){return _lum(hex)>0.62?'#2b2721':'#fdfbf6';}
+  /* ── 颜色工具(给"按分档做主题变体"用;纯函数,解析失败一律原样返回,永不炸卡)── */
+  function _hex2rgb(h){h=String(h||'').trim().replace('#','');if(h.length===3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];if(!/^[0-9a-fA-F]{6}$/.test(h))return null;const n=parseInt(h,16);return [n>>16&255,n>>8&255,n&255];}
+  function _rgb2hex(r,g,b){const f=v=>('0'+Math.max(0,Math.min(255,Math.round(v))).toString(16)).slice(-2);return '#'+f(r)+f(g)+f(b);}
+  function _rgb2hsl(r,g,b){r/=255;g/=255;b/=255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2;let h=0,s=0;if(mx!==mn){const d=mx-mn;s=l>.5?d/(2-mx-mn):d/(mx+mn);h=mx===r?((g-b)/d+(g<b?6:0)):mx===g?((b-r)/d+2):((r-g)/d+4);h*=60;}return [h,s,l];}
+  function _hsl2rgb(h,s,l){h=((h%360)+360)%360/360;if(s<=0){const v=l*255;return [v,v,v];}const q=l<.5?l*(1+s):l+s-l*s,p=2*l-q;const f=t=>{t=(t+1)%1;return t<1/6?p+(q-p)*6*t:t<.5?q:t<2/3?p+(q-p)*(2/3-t)*6:p;};return [f(h+1/3)*255,f(h)*255,f(h-1/3)*255];}
+  function _hlerp(h,to,w){const d=((to-h+540)%360)-180;return (h+d*w+360)%360;}
+  /* k∈[-.5,+.5]:负=低档(更冷更暗更灰) / 正=高档(更亮更饱和) */
+  function _tune(hex,k){const rgb=_hex2rgb(hex);if(!rgb)return hex;let[h,s,l]=_rgb2hsl(rgb[0],rgb[1],rgb[2]);
+    if(k<0)h=_hlerp(h,214,Math.min(.42,-k*.8));                   // 低档:色相往冷蓝挪
+    s=Math.max(.02,Math.min(1,s*(1+k*1.5)+Math.max(0,k)*.16));    // 高档更饱和(并给一点绝对提升,冷灰主题也拉得开)
+    l=Math.max(.09,Math.min(.95,l+k*.26));                        // 高档更亮、低档更暗
+    const o=_hsl2rgb(h,s,l);return _rgb2hex(o[0],o[1],o[2]);}
+  function _tuneTriple(tri,k){const p=String(tri||'').split(',').map(Number);if(p.length!==3||p.some(v=>!isFinite(v)))return tri;
+    const hx=_tune(_rgb2hex(p[0],p[1],p[2]),k),o=_hex2rgb(hx);return o?o.join(','):tri;}
+  function _tuneAlpha(col,k){return String(col||'').replace(/rgba\(([^)]+)\)/i,(m,inner)=>{const p=inner.split(',');if(p.length!==4)return m;
+    const a=parseFloat(p[3]);if(!isFinite(a))return m;return 'rgba('+p[0]+','+p[1]+','+p[2]+','+Math.max(.08,Math.min(.95,a*(1+k*.5))).toFixed(3)+')';});}
+  /* tier:0~1 数值(>1 视为百分制)或 'low'|'mid'|'high'|'max';不认识 → null(视觉完全不变)*/
+  const TIER_MAP={low:.16,lo:.16,l:.16,mid:.45,middle:.45,m:.45,high:.72,hi:.72,h:.72,max:1,peak:1,top:1};
+  function _tierVal(v){
+    if(v==null||v==='')return null;
+    if(typeof v==='number'){if(!isFinite(v))return null;const n=v>1?v/100:v;return Math.max(0,Math.min(1,n));}
+    const k=String(v).trim().toLowerCase();
+    if(TIER_MAP[k]!=null)return TIER_MAP[k];
+    if(/^[\d.]+%?$/.test(k)){const n=parseFloat(k);if(isFinite(n))return Math.max(0,Math.min(1,n>1?n/100:n));}
+    return null;
+  }
   /* ── 分享卡装饰基元(纯 canvas,无外链;每个都 save/restore 自洽,不污染后续文字样式)── */
   function _oDot(x,cx,cy,r,col,a){x.save();x.globalAlpha=a;x.fillStyle=col;x.beginPath();x.arc(cx,cy,r,0,6.2832);x.fill();x.restore();}
   function _oSpark(x,cx,cy,r,col,a){x.save();x.globalAlpha=a;x.fillStyle=col;x.beginPath();x.moveTo(cx,cy-r);x.quadraticCurveTo(cx+r*.16,cy-r*.16,cx+r,cy);x.quadraticCurveTo(cx+r*.16,cy+r*.16,cx,cy+r);x.quadraticCurveTo(cx-r*.16,cy+r*.16,cx-r,cy);x.quadraticCurveTo(cx-r*.16,cy-r*.16,cx,cy-r);x.closePath();x.fill();x.restore();}
@@ -160,15 +358,51 @@ window.CE = (function () {
       ornament(x,W,H,t){ const px=(ox,oy,s,col,a)=>{x.save();x.globalAlpha=a;x.fillStyle=col;x.fillRect(ox,oy,s,s);x.restore();}; px(40,50,7,t.accent,.5);px(49,50,7,t.hook,.4);px(40,59,7,t.hook,.35); px(W-47,52,7,t.accent,.5);px(W-56,52,7,t.hook,.4);px(W-47,61,7,t.hook,.35); const ph=(ox,oy)=>{const s=4;[[1,0],[3,0],[0,1],[1,1],[2,1],[3,1],[4,1],[1,2],[2,2],[3,2],[2,3]].forEach(p=>px(ox+p[0]*s,oy+p[1]*s,s,t.accent,.4));}; ph(44,H-118); ph(W-72,H-118); } }
   };
 
-  /* 底部区(二维码/引导)占位高度:从"白底托的顶边 / 首行文案的顶边"到卡片底边 —— 卡片总高 = 内容高 + 留白 + 它 */
-  const BOT_QR=209, BOT_TXT=75;
+  /* ── 主题解析:工具主题 → 再按结果强度(model.tier)做"档位变体" ──
+     同一工具的不同称号(如牛马浓度 low/mid/high/max)出的卡不再是同一张:高档更亮更饱和、低档更冷更暗。
+     没传 tier 的工具 → 原封不动返回工具主题对象本身,视觉与升级前逐字段等价(零回归)。 */
+  function themeFor(model){
+    const base=(model&&model.themeId&&THEMES[model.themeId])||THEMES._default;
+    const tv=_tierVal(model&&model.tier);
+    if(tv==null)return base;
+    const k=tv-0.5;                                   // -0.5 最低档 → +0.5 最高档
+    const t=Object.assign({},base);                   // 浅拷贝:ornament 等原样带过来
+    t.accent   =_tune(base.accent,k);
+    t.hl       =_tune(base.hl,k*0.8);
+    t.hook     =_tune(base.hook,k*0.8);
+    t.muted    =_tune(base.muted,k*0.45);
+    t.accentDim=_tune(base.accentDim,k*0.5);
+    t.glow     =_tuneTriple(base.glow,k);
+    t.border   =_tuneAlpha(base.border,k);
+    t.divider  =_tuneAlpha(base.divider,k);
+    t.tierV=tv;                                       // 供光晕强度用
+    return t;
+  }
 
-  function drawCard(model, qr){
-    const t=(model&&model.themeId&&THEMES[model.themeId])||THEMES._default; // 无主题 → 金黑(与现状逐字段等价)
+  /* 底部区(二维码/引导)占位高度:从"白底托的顶边 / 首行文案的顶边"到卡片底边 —— 卡片总高 = 内容高 + 留白 + 它
+     BOT_ROW=多码一行(工具码+公众号+星球) / BOT_QR=只有一个码(退化) / BOT_TXT=一个码都没有(纯文案) */
+  const BOT_ROW=236, BOT_QR=209, BOT_TXT=75;
+  /* 导出比例:phone=现有手机竖版(540×动态高) / 34=小红书 1080×1440(逻辑 540×720,重新排版而非拉伸)*/
+  const RATIO_34_H=720;
+
+  function drawCard(model, qr, opts){
+    const t=themeFor(model);                                               // 无主题 → 金黑;有 tier → 档位变体
+    const wide=!!(opts&&/^3[:x_-]?4$/.test(String(opts.ratio||'')));       // '3:4' / '34' → 小红书比例
     const cards=(Array.isArray(model.cards)&&model.cards.length)?model.cards:null; // 可选:牌面小图(塔罗用)
     const cc=(model.colorcard&&model.colorcard.main)?model.colorcard:null;         // 可选:本命色卡(主色+辅助色,sekapian 用)
     const ccAux=cc&&Array.isArray(cc.aux)?cc.aux.slice(0,4):[];
     const S=2,W=540;
+
+    /* ── 底部码位:①工具码(前端现算,指向微信可达镜像)②公众号码 ③星球码 ──
+       ① 才是闭环那一步:收到卡的人长按识别就能直接进来玩,不必再去搜公众号;②③ 仍是转化目标,原样保留。
+       编码失败/图没加载到 → 该码自动缺席,布局按实际码数收缩,永不留空洞。 */
+    const toolUrl=(opts&&opts.wxUrl)||wxUrl(model&&(model.toolId||model.themeId));
+    const toolQ=(opts&&opts.noToolQR)?null:qrEncode(toolUrl);
+    const planet=(opts&&opts.planet)||null;
+    const codes=[];
+    if(qr)     codes.push({img:qr,     lab:'关注公众号', hero:false});
+    if(toolQ)  codes.push({q:toolQ,    lab:'长按识别·直接玩', hero:true});
+    if(planet) codes.push({img:planet, lab:'进星球',     hero:false});
 
     /* ── 内容流(kicker → 标题 → 牌面 → 色卡 → 大数字 → 四维 → 分隔 → 钩子)──
        同一段代码跑两遍:第一遍在 8×8 离屏画布上"空跑"(只借它的 measureText 做折行,像素丢弃)拿到内容真实高度,
@@ -230,7 +464,8 @@ window.CE = (function () {
       /* ── 大数字(全卡主角:光晕 + Bebas,跳出来)── */
       if(model.big!=null){
         x.fillStyle=t.muted;x.font='12px '+F_MONO;_ls(x,'1px');x.fillText(model.bigLabel||'',W/2,Y);_ls(x,'0px');Y+=58;
-        x.save();x.shadowColor='rgba('+t.glow+',.55)';x.shadowBlur=24;x.fillStyle=t.hl;x.font='700 76px '+F_NUM;x.fillText(String(model.big),W/2,Y);x.restore();
+        const bA=t.tierV==null?.55:(.34+.42*t.tierV), bB=t.tierV==null?24:Math.round(16+18*t.tierV); // 有分档:高档大数字光更炸
+        x.save();x.shadowColor='rgba('+t.glow+','+bA.toFixed(2)+')';x.shadowBlur=bB;x.fillStyle=t.hl;x.font='700 76px '+F_NUM;x.fillText(String(model.big),W/2,Y);x.restore();
         Y+=44;
       }
 
@@ -262,43 +497,118 @@ window.CE = (function () {
     try{const mc=document.createElement('canvas');mc.width=mc.height=8;contentH=flow(mc.getContext('2d'),0);}
     catch(e){contentH=(qr?740:650)-(qr?BOT_QR:BOT_TXT)-26;}   // 极端兜底:退回原固定高度的等效值
 
-    /* ── ② 定高:高度跟着内容走,不再写死 ── */
-    const BOT=qr?BOT_QR:BOT_TXT, GAP=qr?26:24, MINH=qr?560:430;   // GAP=内容与底部区之间的呼吸;MINH=兜底,只对最短的卡(如起名:标题+副标+钩子)生效
+    /* ── ② 定高:手机版高度跟着内容走;3:4 版高度写死 720(=1080×1440),靠留白/等比缩放重新排版 ── */
+    const nc=codes.length;
+    const BOT=nc>=2?BOT_ROW:(nc===1?BOT_QR:BOT_TXT), GAP=nc?26:24, MINH=nc>=2?590:(nc===1?560:430);   // GAP=内容与底部区之间的呼吸;MINH=兜底,只对最短的卡(如起名:标题+副标+钩子)生效
     const need=Math.round(contentH+GAP+BOT);
-    const H=Math.max(MINH,need);
-    const dy=Math.min(56,Math.max(0,Math.round((H-need)*0.7)));    // 触发最小高时富余主要补到顶部(至多 56),别全堆在二维码上方变死区
+    let H, dy, cs=1;                                              // cs=内容等比缩放(仅 3:4 且内容超高时 <1,等比不变形)
+    if(wide){
+      H=RATIO_34_H;
+      const avail=H-BOT-GAP;                                      // 内容可用高度
+      if(contentH<=avail){dy=Math.max(0,Math.round((avail-contentH)/2));} // 内容居中,上下留白对称
+      else{dy=0;cs=avail/contentH;}                               // 内容超高 → 整块等比缩到刚好放下(宽度同步收,居中,绝不拉伸)
+    }else{
+      H=Math.max(MINH,need);
+      dy=Math.min(56,Math.max(0,Math.round((H-need)*0.7)));        // 触发最小高时富余主要补到顶部(至多 56),别全堆在二维码上方变死区
+    }
 
     /* ── ③ 画 ── */
     const c=document.createElement('canvas');c.width=W*S;c.height=H*S;
     const x=c.getContext('2d');x.scale(S,S);x.textAlign='center';x.textBaseline='alphabetic';
 
-    /* ── 底 + 顶部光晕(略上移,把光托在标题/大数字后面)── */
+    /* ── 底 + 顶部光晕(略上移,把光托在标题/大数字后面;有 tier 时光晕强度随档位走)── */
+    const gA=(t.tierV==null?.17:(.09+.17*t.tierV)).toFixed(3);
+    const gy=wide?Math.round(196+dy*0.55):196;
     x.fillStyle=t.bg;x.fillRect(0,0,W,H);
-    const g=x.createRadialGradient(W/2,196,30,W/2,196,450);g.addColorStop(0,'rgba('+t.glow+',.17)');g.addColorStop(1,'rgba('+t.glow+',0)');x.fillStyle=g;x.fillRect(0,0,W,H);
+    const g=x.createRadialGradient(W/2,gy,30,W/2,gy,450);g.addColorStop(0,'rgba('+t.glow+','+gA+')');g.addColorStop(1,'rgba('+t.glow+',0)');x.fillStyle=g;x.fillRect(0,0,W,H);
     if(t.ornament){try{t.ornament(x,W,H,t);}catch(e){}x.textAlign='center';x.textBaseline='alphabetic';x.globalAlpha=1;x.shadowBlur=0;_ls(x,'0px');} // 纹样后彻底复位,防污染文字
 
     /* ── 双描边外框(外实内虚,更精致)── */
     x.strokeStyle=t.border;x.lineWidth=1.5;_rr(x,16,16,W-32,H-32,18);x.stroke();
     x.save();x.globalAlpha=.55;x.strokeStyle=t.divider;x.lineWidth=1;_rr(x,23,23,W-46,H-46,13);x.stroke();x.restore();
 
-    flow(x,dy);
+    if(cs!==1){x.save();x.translate(W*(1-cs)/2,0);x.scale(cs,cs);flow(x,dy);x.restore();x.textAlign='center';x.textBaseline='alphabetic';}
+    else flow(x,dy);
 
-    /* ── 底部:二维码 / 引导 ── */
-    if(qr){const q=104,qx=(W-q)/2,qy=H-198;
+    /* ── 底部:多码一行 / 单码 / 纯文案(微信封了主站域名 → 文案只教"长按识别"这个真能走通的动作)── */
+    if(nc>=2){
+      /* 一行排开:工具码当主角(更大 + 描金环 + 强调色文案),公众号/星球码略小陪衬。
+         尺寸按"截图后仍扫得出"来定:主码 120 逻辑px = 240 设备px / 37 模块 → 每模块 6 设备px。 */
+      const HQ=120,SQ=104,PAD=9;                                    // 主码 / 陪衬码 / 白底托内边距
+      const ws=codes.map(k=>(k.hero?HQ:SQ)+PAD*2);
+      const gap=nc>=3?42:52, totW=ws.reduce((a,b)=>a+b,0)+gap*(nc-1);
+      let px0=Math.round((W-totW)/2);
+      const heroTop=H-BOT;                                          // 主码白底托的顶边 = 底部区顶边
+      codes.forEach(k=>{
+        const q=k.hero?HQ:SQ, pw=q+PAD*2, py=heroTop+(k.hero?0:Math.round((HQ-SQ)/2));
+        x.save();x.shadowColor='rgba(0,0,0,.42)';x.shadowBlur=k.hero?15:11;x.fillStyle='#fff';_rr(x,px0,py,pw,pw,12);x.fill();x.restore();
+        if(k.hero){x.save();x.globalAlpha=.9;x.strokeStyle=t.accent;x.lineWidth=1.8;_rr(x,px0-3,py-3,pw+6,pw+6,15);x.stroke();x.restore();} // 描金环:一眼看出该长按哪个
+        if(k.q)_qrPaint(x,k.q,px0+PAD,py+PAD,q,S);                  // 现算的工具码(设备像素整数对齐,不发虚)
+        else   x.drawImage(k.img,px0+PAD,py+PAD,q,q);
+        const cx=px0+pw/2, ly=py+pw+(k.hero?18:16);
+        if(k.hero){x.fillStyle=t.hl;x.font='700 11.5px '+F_CJK;}
+        else      {x.fillStyle=t.muted;x.font='10.5px '+F_CJK;}
+        x.fillText(k.lab,cx,ly,pw+gap-8);
+        px0+=pw+gap;
+      });
+      x.fillStyle=t.accent;x.font='12px '+F_MONO;_ls(x,'.3px');x.fillText('长按这张图 · 识别二维码 → 直接进来玩',W/2,H-50);_ls(x,'0px');
+      x.fillStyle=t.accentDim;x.font='10.5px '+F_MONO;x.fillText('识别不出?微信搜「Zion降噪」· 仅供娱乐',W/2,H-27);
+    }
+    else if(nc===1){const k=codes[0],q=104,qx=(W-q)/2,qy=H-198;
       x.save();x.shadowColor='rgba(0,0,0,.4)';x.shadowBlur=14;x.fillStyle='#fff';_rr(x,qx-11,qy-11,q+22,q+22,14);x.fill();x.restore(); // 白底圆角托,扫码更稳更干净
-      x.drawImage(qr,qx,qy,q,q);
-      x.fillStyle=t.accent;x.font='12.5px '+F_MONO;_ls(x,'.3px');x.fillText('扫码关注「Zion降噪」· 每天一条信号帮你降噪',W/2,H-58);_ls(x,'0px');
-      x.fillStyle=t.accentDim;x.font='11px '+F_MONO;x.fillText('qizh.space · 仅供娱乐',W/2,H-34);}
+      if(k.q)_qrPaint(x,k.q,qx,qy,q,S);else x.drawImage(k.img,qx,qy,q,q);
+      x.fillStyle=t.accent;x.font='12.5px '+F_MONO;_ls(x,'.3px');x.fillText(k.hero?'长按这张图 · 识别二维码 → 直接进来玩':'长按这张图 · 识别二维码 → 关注「Zion降噪」',W/2,H-58);_ls(x,'0px');
+      x.fillStyle=t.accentDim;x.font='11px '+F_MONO;x.fillText('识别不出?微信搜「Zion降噪」· 仅供娱乐',W/2,H-34);}
     else{x.fillStyle=t.accent;x.font='13px '+F_MONO;_ls(x,'.3px');x.fillText('微信搜「Zion降噪」测你的',W/2,H-60);_ls(x,'0px');
-      x.fillStyle=t.accentDim;x.font='11px '+F_MONO;x.fillText('qizh.space · 仅供娱乐',W/2,H-36);}
+      x.fillStyle=t.accentDim;x.font='11px '+F_MONO;x.fillText('仅供娱乐 · 每天一条降噪信号',W/2,H-36);}
     return c;
   }
 
   /* ── 结果状态 & 分享即解锁 ── */
   let _last=null;
-  function applyLock(){const u=localStorage.getItem('ce_unlocked_'+(_last&&_last.toolId))==='1';const z=document.getElementById('ce-lockZone'),ct=document.getElementById('ce-lockCta');if(z)z.classList.toggle('ce-blur',!u);if(ct)ct.style.display=u?'none':'block';}
+
+  /* ── 锁区"保留词形的乱码"(替代整片高斯模糊)──
+     把锁区里的汉字/字母/数字逐字换成同类随机字符,标点、空格、换行、字数一律不动 →
+     行数/长度/段落形状与真文案完全一致,用户一眼看出"下面压着一大段具体内容",但读不出内容。
+     原文存在 _lockSnap(内存,不写 DOM),解锁时按节点逐个写回,100% 还原。 */
+  const SCRAM_CJK='的一是在不了有和人这中大为上个国我以要他时来用们生到作地于出就分对成会可主发年动同工也能下过子说产种面而方后多定行学法所民得经十三之进着等部度家电力里如水化高自二理起小物现实加量都两体制机当使点从业本去把性好应开它合还因由其些然前外天政四日那社义事平形相全表间样与关各重新线内数正心反你明看原又么利比或但质气第向道命此变条只没结解问意建月公无系军很情者最立代想已通并提直题党程展五果料象员革位入常文总次品式活设及管特件长求老头基资边流路级少图山统接知较将组见计别她手角期根论运农指几九区强放决西被干做必战先回则任取据处队南给色光门即保治北造百规热领七海口东导器压志世金增争济阶油思术极交受联什认六共权收证改清己美再采转更单风切打白教速花带安场身车例真务具万每目至达走积示议声报斗完类八离华名确才科张信马节话米整空元况今集温传土许步群广石记需段研界拉林律叫且究观越织装影算低持音众书布复容儿须际商非验连断深难近矿千周委素技备半办青省列习响约支般史感劳便团往酸历市克何除消构府称太准精值号率族维划选标写存候毛亲快效斯院查江型眼王按格养易置派层片始却专状育厂京识适属圆包火住调满县局照参红细引听该铁价严龙飞';
+  let _lockSnap=null;               // [[textNode, 原文], …];null=没有做过乱码
+  function _scrChar(ch,rnd){
+    if(/[㐀-鿿]/.test(ch))           return SCRAM_CJK[Math.floor(rnd()*SCRAM_CJK.length)];
+    if(/[a-z]/.test(ch))                    return 'abcdefghijklmnopqrstuvwxyz'[Math.floor(rnd()*26)];
+    if(/[A-Z]/.test(ch))                    return 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(rnd()*26)];
+    if(/[0-9]/.test(ch))                    return String(Math.floor(rnd()*10));
+    return ch;                               // 标点/空格/换行/emoji 一律保留 → 段落形状不变
+  }
+  function _walkText(root,fn){
+    try{const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null);let n;while((n=w.nextNode()))fn(n);}
+    catch(e){}                               // 极端环境退化:不做乱码(仍有 CSS 兜底遮罩)
+  }
+  function scrambleLock(z){
+    if(!z||_lockSnap)return;
+    const rnd=Math.random, snap=[];
+    _walkText(z,n=>{
+      const s=n.nodeValue; if(!s||!/\S/.test(s))return;
+      snap.push([n,s]);
+      let o=''; for(const ch of s)o+=_scrChar(ch,rnd);
+      n.nodeValue=o;
+    });
+    _lockSnap=snap;
+  }
+  function unscrambleLock(){
+    if(!_lockSnap)return;
+    _lockSnap.forEach(p=>{try{p[0].nodeValue=p[1];}catch(e){}});   // 逐节点写回真文本,100% 还原
+    _lockSnap=null;
+  }
+  function applyLock(){
+    const u=localStorage.getItem('ce_unlocked_'+(_last&&_last.toolId))==='1';
+    const z=document.getElementById('ce-lockZone'),ct=document.getElementById('ce-lockCta');
+    if(z){z.classList.toggle('ce-blur',!u);if(u)unscrambleLock();else scrambleLock(z);}
+    if(ct)ct.style.display=u?'none':'block';
+  }
   async function shareCard(){
     if(!_last)return;
+    track('share_click',_last.toolId);
     try{await _warmFonts();}catch(e){}   // 画之前确保自托管拉丁字体已就绪,首图不掉字
     // 可选:预加载分享卡上的牌面小图(同源本地图,不污染 canvas → toDataURL 正常)
     if(_last.card&&Array.isArray(_last.card.cards)&&_last.card.cards.length){
@@ -307,32 +617,120 @@ window.CE = (function () {
         const im=new Image();im.onload=()=>{c.el=im;r();};im.onerror=()=>r();im.src=c.img;
       })));
     }
-    const qr=await loadWxQR(); const canvas=drawCard(_last.card,qr),dataUrl=canvas.toDataURL('image/png');
+    const both=await Promise.all([loadWxQR(),loadPlanetQR()]);       // 公众号码 + 星球码(工具码在 drawCard 里现算,不用等网络)
+    const qr=both[0];_shareQR=qr;_sharePlanet=both[1];
+    const canvas=drawCard(_last.card,qr,{planet:_sharePlanet}),dataUrl=canvas.toDataURL('image/png');
+    const _wasU=localStorage.getItem('ce_unlocked_'+_last.toolId)==='1';
     localStorage.setItem('ce_unlocked_'+_last.toolId,'1');applyLock();
-    const txt=_last.shareText||('我测了「'+_last.toolName+'」,来测测你的 👉 qizh.space');
+    if(!_wasU)track('unlock',_last.toolId);              // 只记"这次真的从锁着变成解开",重复分享不算
+    /* 系统分享面板带的文案:工具页自己的 shareText 原样用,末尾补一条镜像链接(微信里可点可进)。
+       已经自带镜像地址的就不重复补。 */
+    const _base=_last.shareText||('我测了「'+_last.toolName+'」,你也来测');
+    const txt=_base+(String(_base).indexOf(WX_HOST)<0?('\n👉 '+wxUrl(_last.toolId)):'');
     try{const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));if(blob&&navigator.canShare){const f=new File([blob],'card.png',{type:'image/png'});if(navigator.canShare({files:[f]})){await navigator.share({files:[f],text:txt});return;}}}catch(e){}
-    const wx=/MicroMessenger/i.test(navigator.userAgent);
+    _shareCache={phone:dataUrl};                                // 3:4 版按需再画,不白花时间
+    showShare('phone');
+  }
+
+  /* ── 分享浮层里的比例切换(手机竖版 / 小红书 3:4)── */
+  let _shareQR=null,_sharePlanet=null,_shareCache={},_shareRatio='phone';
+  function showShare(ratio){
+    if(!_last)return;
     const ov=document.getElementById('ce-shareov'),im=document.getElementById('ce-shareimg');
-    im.src=dataUrl;ov.classList.add('on');
-    document.getElementById('ce-svtip').textContent=wx?'长按图片保存,发朋友圈 📲':'长按图片保存,或点下方下载';
-    const dl=document.getElementById('ce-svdl');dl.style.display=wx?'none':'';dl.onclick=()=>{const a=document.createElement('a');a.href=dataUrl;a.download='card.png';a.click();};
+    if(!ov||!im)return;
+    _shareRatio=ratio==='34'?'34':'phone';
+    let url=_shareCache[_shareRatio];
+    if(!url){try{url=drawCard(_last.card,_shareQR,{ratio:_shareRatio==='34'?'3:4':'phone',planet:_sharePlanet}).toDataURL('image/png');_shareCache[_shareRatio]=url;}catch(e){return;}}
+    im.src=url;im.classList.toggle('r34',_shareRatio==='34');
+    ov.classList.add('on');
+    // 分享卡上必然带指向镜像的工具码 → 卡真的显示出来了 = 用户看到了一个微信内可扫的码
+    track('qr_shown',_last.toolId,{ratio:_shareRatio});
+    const wx=/MicroMessenger/i.test(navigator.userAgent);
+    const tip=document.getElementById('ce-svtip');
+    if(tip)tip.textContent=_shareRatio==='34'
+      ? (wx?'1080×1440 · 长按保存,发小红书 📕':'1080×1440 小红书尺寸 · 点下方下载')
+      : (wx?'长按图片保存,发朋友圈 📲(朋友长按图就能识别码)':'长按图片保存,或点下方下载');
+    const rw=document.getElementById('ce-ratio');
+    if(rw)rw.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.r===_shareRatio));
+    const dl=document.getElementById('ce-svdl');
+    if(dl){dl.style.display=wx?'none':'';dl.onclick=()=>{const a=document.createElement('a');a.href=url;a.download=_shareRatio==='34'?'card-1080x1440.png':'card.png';a.click();};}
   }
 
   /* ── 分享浮层(引擎自动注入,工具页无需重复)── */
   function ensureOverlay(){
     if(document.getElementById('ce-shareov'))return;
     const ov=document.createElement('div');ov.className='ce-shareov';ov.id='ce-shareov';
-    ov.innerHTML='<img id="ce-shareimg" alt="分享卡"><div class="svtip" id="ce-svtip">长按图片保存,发朋友圈 📲</div><div class="svbtns"><button class="ce-btn g" id="ce-svdl">下载图片</button><button class="ce-btn" id="ce-svclose">关闭</button></div>';
+    ov.innerHTML='<img id="ce-shareimg" alt="分享卡">'
+      +'<div class="ce-ratio" id="ce-ratio"><button type="button" class="on" data-r="phone">📱 手机竖版</button><button type="button" data-r="34">📕 小红书 3:4</button></div>'
+      +'<div class="svtip" id="ce-svtip">长按图片保存,发朋友圈 📲</div>'
+      +'<div class="svbtns"><button class="ce-btn g" id="ce-svdl">下载图片</button><button class="ce-btn" id="ce-svclose">关闭</button></div>';
     document.body.appendChild(ov);
     document.getElementById('ce-svclose').onclick=()=>ov.classList.remove('on');
+    document.getElementById('ce-ratio').querySelectorAll('button').forEach(b=>{b.onclick=()=>showShare(b.dataset.r);});
     ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('on');});
+  }
+
+  /* ── 纯文本战报(粘到微信群最省事的形态)──
+     链接走镜像 WX_HOST:主站域名在微信里点不开,镜像点得开 —— 这是文本战报比截图强的地方。
+     数据全从 card model 里取 → 所有工具白嫖,工具页零改动。 */
+  function _bar(v){let n=Math.floor(v/10);if(v>0&&n<1)n=1;n=Math.max(0,Math.min(10,n));return '█'.repeat(n)+'░'.repeat(10-n);}
+  function buildReportText(){
+    if(!_last)return '';
+    const m=_last.card||{},L=[];
+    L.push(String(m.kicker||('🧪 '+(_last.toolName||'测测'))).trim());
+    if(m.title)L.push(String(m.title));
+    if(m.sub)L.push(String(m.sub));
+    if(m.big!=null){
+      const lb=String(m.bigLabel||'').trim();
+      L.push(/%$/.test(lb)?(lb.replace(/\s*%$/,'')+' '+m.big+'%'):((lb?lb+' ':'')+m.big));
+    }
+    if(Array.isArray(m.cards)&&m.cards.length)
+      L.push(m.cards.map(c=>(c&&c.pos?c.pos+':':'')+((c&&c.name)||'')+(c&&c.rev?'(逆)':'')).join(' / '));
+    if(m.colorcard&&m.colorcard.main)
+      L.push('本命主色 '+(m.colorcard.main.name||'')+' '+String(m.colorcard.main.hex||'').toUpperCase());
+    (m.dims||[]).forEach(d=>{
+      const raw=String(d[1]),v=parseFloat(raw.replace(/[^\d.\-]/g,''));
+      L.push(/^\s*[\d.]+\s*%?\s*$/.test(raw)&&isFinite(v)&&v<=100&&v>=0 ? String(d[0])+' '+_bar(v)+' '+raw : String(d[0])+' '+raw);
+    });
+    if(m.hook)L.push('「'+String(m.hook).replace(/\s+/g,' ').trim()+'」');
+    L.push('——————————');
+    L.push('👉 测你的:'+wxUrl(_last.toolId));                       // 镜像地址,微信里可点可进
+    L.push('全部 '+TOOLS.length+' 个测试:'+WX_HOST+'/ce/');
+    return L.filter(s=>s&&String(s).trim()).join('\n');
+  }
+  function toast(msg){
+    let el=document.getElementById('ce-toast');
+    if(!el){el=document.createElement('div');el.id='ce-toast';el.className='ce-toast';document.body.appendChild(el);}
+    el.textContent=msg;el.classList.remove('on');void el.offsetWidth;el.classList.add('on');
+    clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),2000);
+  }
+  async function copyReport(){
+    const txt=buildReportText();
+    if(!txt){toast('还没有结果可复制');return false;}
+    let ok=false;
+    try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(txt);ok=true;}}catch(e){}
+    if(!ok){                                        // 降级:老浏览器 / 非安全上下文 / 微信内核
+      try{
+        const ta=document.createElement('textarea');ta.value=txt;
+        ta.setAttribute('readonly','');ta.style.cssText='position:fixed;left:-9999px;top:0;opacity:0';
+        document.body.appendChild(ta);ta.select();ta.setSelectionRange(0,txt.length);
+        ok=document.execCommand('copy');document.body.removeChild(ta);
+      }catch(e){ok=false;}
+    }
+    track('copy_report',_last&&_last.toolId,{ok:ok});    // ok=0 说明这台设备复制不了(微信内核常见)
+    toast(ok?'✅ 战报已复制 · 直接粘到微信群':'复制失败,长按下方文字手动复制');
+    if(!ok){const p=document.getElementById('ce-copyfall');if(p){p.textContent=txt;p.style.display='block';}}
+    return ok;
   }
 
   /* ── 渲染报告(标签/分数/四维/分段 + 锁区)── */
   function render(cfg, result){
     ensureOverlay();
+    _lockSnap=null;_shareCache={};                                    // 换一次结果 → 旧原文快照/旧分享图一律作废
     _last={toolId:cfg.id,toolName:cfg.名字||cfg.name,card:result.card,shareText:result.shareText};
     if(result.card&&cfg&&cfg.id!=null&&result.card.themeId==null)result.card.themeId=cfg.id; // 按工具 id 选主题(工具页零改动;未列入 THEMES 者自动回落金黑)
+    if(result.card&&cfg&&cfg.id!=null&&result.card.toolId==null)result.card.toolId=cfg.id;    // 分享卡上的"工具码"要知道自己是哪个工具(→ 镜像地址)
+    if(result.card&&result.card.tier==null&&result.tier!=null)result.card.tier=result.tier;  // 工具若给了分档 → 卡片走"档位变体"配色;没给则视觉不变
     const box=document.getElementById('ce-report');
     const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     // 四维/大数字一律走 esc:现在传的都是常量或数字,但下一个工具往里塞用户输入时就是 XSS,这里先堵死
@@ -349,18 +747,28 @@ window.CE = (function () {
       </div>
       <div class="ce-cta"><div class="ct">🔓 解锁更深 · 每天一条「降噪信号」帮你少焦虑</div>
         <div class="ce-qrs">
-          <div class="ce-qr"><img src="/wechat-qr.png" alt="公众号 Zion降噪"><b>扫码关注公众号</b><span>「Zion降噪」· 每天降噪信号 + 新测试抢先玩</span></div>
-          <div class="ce-qr"><img src="/planet-qr.png" alt="知识星球" loading="lazy"><b>扫码进知识星球</b><span>和同频的人一起搞事、拿工具</span></div>
+          <div class="ce-qr"><img src="/wechat-qr.png" alt="公众号 Zion降噪"><b>长按识别 · 关注公众号</b><span>「Zion降噪」· 手指按住上面这张码 → 识别 → 关注</span></div>
+          <div class="ce-qr"><img src="/planet-qr.png" alt="知识星球" loading="lazy"><b>长按识别 · 进知识星球</b><span>同上,长按这张码 → 和同频的人搞事、拿工具</span></div>
         </div>
         <a class="ce-btn g" href="/join/" style="display:inline-block;margin:6px 0 4px;text-decoration:none">加入「降噪·静音舱」→</a>
         <div class="cb">微信里打不开链接?复制到浏览器:<b>${JOIN_URL}</b></div></div>
-      <div class="ce-row"><button class="ce-btn g" id="ce-share">📤 甩给最该看的人</button><button class="ce-btn" id="ce-again">再测一次</button></div>
+      <div class="ce-row"><button class="ce-btn g" id="ce-share">📤 甩给最该看的人</button><button class="ce-btn" id="ce-copy">📋 复制文字战报</button><button class="ce-btn" id="ce-again">再测一次</button></div>
+      <div class="ce-copyfall" id="ce-copyfall"></div>
       <div class="ce-retention">🌙 明天再来测,运势/心情每天都在变 · 把结果甩给最该看的那个人,反应最真实 👀</div>
       ${buildMore(cfg.id)}
       <div class="ce-wm">qizh.space · 微信搜「Zion降噪」· 仅供娱乐</div>`;
     document.getElementById('ce-share').onclick=shareCard;
+    const cp=document.getElementById('ce-copy');if(cp)cp.onclick=copyReport;
     const ls=document.getElementById('ce-lockShare');if(ls)ls.onclick=shareCard;
     document.getElementById('ce-again').onclick=()=>{document.getElementById('ce-report').style.display='none';document.getElementById('ce-stage').style.display='block';window.scrollTo({top:0,behavior:'smooth'});};
+    /* 导流条点击(委托一次,覆盖 3 张卡 + "查看全部");keepalive 保证跳走也发得出去 */
+    const mw=box.querySelector('.ce-more');
+    if(mw)mw.addEventListener('click',e=>{
+      const a=e.target&&e.target.closest?e.target.closest('a[data-t]'):null;
+      if(a)track('cross_click',cfg.id,{to:a.getAttribute('data-t')});
+    });
+    // 出结果 = "真的玩了"的唯一可信信号。meta 只带粗档位,不带任何输入内容。
+    track('result_shown',cfg.id,{tier:_tierTag(result.tier!=null?result.tier:(result.card&&result.card.tier))});
     applyLock();
     document.getElementById('ce-stage').style.display='none';
     box.style.display='block';box.scrollIntoView({behavior:'smooth',block:'start'});
@@ -368,5 +776,7 @@ window.CE = (function () {
 
   return { rngFrom, pick, wpick, imgHash, buildParts, llm, render, drawCard,
            TOOLS, JOIN_URL, buildMore,
-           util:{xmur3,mulberry32} };
+           buildReportText, copyReport, toast, showShare, themeFor,
+           WX_HOST, wxUrl, qrEncode, drawQRCode,
+           util:{xmur3,mulberry32,tierVal:_tierVal} };
 })();
